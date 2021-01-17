@@ -78,10 +78,10 @@ function Entity:always(...)
 	@.timer:always(...)
 end
 
-function Entity:move_toward(target, speed, turn_speed)
-	local target     = Vec2(target)
-	local target_dir = (target - @.pos):normalized()
-	local dir_diff   = target_dir - @.dir
-	@.dir += (dir_diff * (turn_speed * dt))
-	@.pos += @.dir * speed * dt
+function Entity:lerp_to(target, speed)
+	self.pos = self.pos:lerp(Vec2(target), speed)
+end
+
+function Entity:move_to(target)
+	self.pos = Vec2(target)
 end

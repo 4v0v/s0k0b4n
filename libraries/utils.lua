@@ -4,11 +4,18 @@ function uid()
 	end)
 end
 
-function cmyk(c, m, y, k, a)
+function cmyk(...)
+	local args = {...}
+	local c, m, y, k, a
+	if type(args[1]) == 'table' then 
+		c, m, y, k, a = args[1][1], args[1][2], args[1][3], args[1][4], args[1][5]
+	else
+		c, m, y, k, a = args[1], args[2], args[3], args[4], args[5]
+	end
 	local r = 1 -  (c * (1 - k) + k)
 	local g = 1 -  (m * (1 - k) + k)
 	local b = 1 -  (y * (1 - k) + k)
-	return r, g, b, a
+	return {r, g, b, a}
 end
 
 function get(object, path, default)

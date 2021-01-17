@@ -201,9 +201,11 @@ function Room:follow(...)
 end
 
 function Room:get_mouse_position_inside_camera() 
-	return @.camera:get_mouse_position()
+	local x, y = @.camera:get_mouse_position()
+	return {x, y}
 end
 
-function Room:get_mouse_position_outside_camera() 
-	return lm.getPosition()
+function Room:get_mouse_position_outside_camera()
+	local x, y = lm.getPosition()
+	return {x, y} 
 end

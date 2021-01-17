@@ -1,7 +1,7 @@
 local acos, atan2, sqrt, cos, sin, min, max = math.acos, math.atan2, math.sqrt, math.cos, math.sin, math.min, math.max
 local status, ffi
 
-local function new(x, y) return setmetatable({x = x or 0, y = y or 0}, vec2) end
+local function new(x, y) return setmetatable({x = x or 0, y = y or 0}, Vec2) end
 
 if type(jit) == 'table' and jit.status() then
 	status, ffi = pcall(require, 'ffi')
@@ -14,7 +14,9 @@ end
 local Vec2 = {}
 
 function Vec2.new(x, y)
-	if x and y then
+	if Vec2.is_vec2(x) then 
+		return Vec2.copy(x)
+	elseif x and y then
 		assert(type(x) == 'number', 'new: Wrong argument type for x (<number> expected)')
 		assert(type(y) == 'number', 'new: Wrong argument type for y (<number> expected)')
 		return new(x, y)
