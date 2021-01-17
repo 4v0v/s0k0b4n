@@ -26,21 +26,23 @@ function AnimationFrames:draw(frame, x, y, r, sx, sy, ox, oy)
 	)
 end
 
-AnimationLogic = Class:extend('AnimationLogic')
+Animation =  Class:extend('Animation')
 
-function AnimationLogic:new(delay, frames, mode, actions)
-	@.delay     = delay
-	@.pause     = false
-  @.frames    = frames
-  @.mode      = mode or 'loop'
-  @.actions   = actions
-  @.timer     = 0
-  @.frame     = 1
-  @.direction = 1
+function Animation:new(delay, frames, mode, actions)
+  @.delay   = delay
+  @.frames  = frames
+  @.size    = #frames.frames
+  @.mode    = mode or 'loop'
+  @.actions = actions
+	@.pause   = false
+  @.timer   = 0
+  @.frame   = 1
+  @.dir     = 1
 end
 
-function AnimationLogic:update(dt)
-  if @.pause then return end
+function Animation:update(dt)
+	
+	if @.pause then return end
 	@.timer += dt
 	
   local delay = @.delay
@@ -49,16 +51,16 @@ function AnimationLogic:update(dt)
 	if @.timer > delay then
 		local action = get(@, {'actions', @.frame})
 
-    @.frame += @.direction
-		if @.frame > @.frames || @.frame < 1 then
+    @.frame += @.dir
+		if @.frame > @.size || @.frame < 1 then
       if @.mode == 'once' then
-        @.frame = @.frames
+        @.frame = @.size
 				@.pause = true
       elif @.mode == 'loop' then
 				@.frame = 1
       elif @.mode == 'bounce' then
-        @.direction = -@.direction
-        @.frame += 2 * @.direction
+        @.dir = -@.dir
+        @.frame += 2 * @.dir
 			end
 		end
 		if action then action() end
@@ -67,39 +69,24 @@ function AnimationLogic:update(dt)
   end
 end
 
-Animation =  Class:extend('Animation')
-
-function Animation:new(delay, frames, mode, actions)
-  @.delay      = delay
-  @.frames     = frames
-  @.size       = #frames.frames
-  @.mode       = mode
-  @.actions    = actions
-  @.anim_logic = AnimationLogic(@.delay, @.size, @.mode, @.actions)
-end
-
-function Animation:update(dt)
-  @.anim_logic:update(dt)
-end
-
 function Animation:draw(x, y, r, sx, sy, ox, oy, color)
-  @.frames:draw(@.anim_logic.frame, x, y, r, sx, sy, ox, oy, color)
+  @.frames:draw(@.frame, x, y, r, sx, sy, ox, oy, color)
 end
 
 function Animation:reset()
-	@.anim_logic.frame = 1
-	@.anim_logic.timer = 0
-	@.anim_logic.direction = 1
-	@.anim_logic.pause = false
+	@.frame = 1
+	@.timer = 0
+	@.dir   = 1
+	@.pause = false
 end
 
 function Animation:set_frame(frame)
-	@.anim_logic.frame = frame
-	@.anim_logic.timer = 0
+	@.frame = frame
+	@.timer = 0
 end
 
 function Animation:set_actions(actions)
-	@.anim_logic.actions = actions
+	@.actions = actions
 end
 
 function Animation:clone()

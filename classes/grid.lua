@@ -5,16 +5,16 @@ function Grid:new(w, h, value)
 	@.width  = w
 	@.height = h
 	
-	if type(value) ~= 'table' then
+	if type(value) == 'table' then
 		foreach(h, fn(j) 
-			foreach(w, fn(i) 
-				@.grid[w*(j-1) + i] = value or 0
+			foreach(w, fn(i)
+				@.grid[w*(j-1) + i] = value[w*(j-1) + i]
 			end)
 		end)
 	else
 		foreach(h, fn(j) 
-			foreach(w, fn(i)
-				@.grid[w*(j-1) + i] = value[w*(j-1) + i]
+			foreach(w, fn(i) 
+				@.grid[w*(j-1) + i] = value or 0
 			end)
 		end)
   end
@@ -45,9 +45,7 @@ function Grid:foreach(func)
 end
 
 function Grid:fill(value)
-	ifor @.grid do
-		@.grid[key] = value
-	end
+	ifor @.grid do @.grid[key] = value end
 end
 
 function Grid:to_table() 
@@ -99,11 +97,7 @@ function Grid:rotate_clockwise()
 end
 
 function Grid:is_oob(x, y)
-  if x > @.width  then return true end
-  if x < 1        then return true end
-  if y > @.height then return true end
-	if y < 1        then return true end
-	return false
+	return x > @.width || x < 1 || y > @.height || y < 1
 end
 
 function Grid:tostring()

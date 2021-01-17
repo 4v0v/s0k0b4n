@@ -5,13 +5,13 @@ function Rectangle:new(x, y, w, h, opts)
 	
 	@.w        = w
 	@.h        = h
-	@.centered = get(opts, 'centered', false)
-	@.color    = get(opts, 'color', {1, 1, 1, 1})
-	@.mode     = get(opts, 'mode', 'line')
 	@.rx       = get(opts, 'rx', 0) -- rounded corners
 	@.ry       = get(opts, 'ry', 0) -- rounded corners
 	@.lw       = get(opts, 'lw', 1) -- line width
 	@.segments = get(opts, 'segments', nil) -- nb of segments for rounded corners
+	@.centered = get(opts, 'centered', false)
+	@.mode     = get(opts, 'mode', 'line')
+	@.color    = get(opts, 'color', {1, 1, 1, 1})
 end
 
 function Rectangle:update(dt)
