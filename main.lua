@@ -24,7 +24,9 @@ function love.run()
 		lg.setDefaultFilter('nearest', 'nearest')
 		lg.setLineStyle('rough')
 		lk.setKeyRepeat(true)
+		lm.setRelativeMode(false)
 		
+		g3d     = require('libraries/g3d')
 		Class   = require('libraries/class')
 		Camera  = require('libraries/camera')
 		Timer   = require('libraries/timer')
@@ -54,18 +56,23 @@ function love.run()
 		game:draw()
 	end
 
+	function love.handle(name, a, b, c, d, e, f)
+		if name == 'mousepressed'  then _INPUT._CUR['m_'.. c] = true end
+		if name == 'keypressed'    then _INPUT._CUR[a] = true if c then _INPUT._PRE[a] = false end end -- c => isRepeat
+		if name == 'mousereleased' then _INPUT._CUR['m_'.. c] = false end
+		if name == 'keyreleased'   then _INPUT._CUR[a] = false end
+		game:handle(name, a,b,c,d,e,f)
+		love.handlers[name](a,b,c,d,e,f)
+	end
+
 	love.load()
 	love.timer.step()
 
 	return function()
 		love.event.pump()
-		for name,a,b,c,d,e,f in love.event.poll() do
-			if name == 'quit'          then return 0 end
-			if name == 'mousepressed'  then _INPUT._CUR['m_'.. c] = true end
-			if name == 'keypressed'    then _INPUT._CUR[a] = true if c then _INPUT._PRE[a] = false end end -- c => isRepeat
-			if name == 'mousereleased' then _INPUT._CUR['m_'.. c] = false end
-			if name == 'keyreleased'   then _INPUT._CUR[a] = false end
-			love.handlers[name](a,b,c,d,e,f)
+		for name, a,b,c,d,e,f in love.event.poll() do
+			if name == 'quit' then return 0 end
+			love.handle(name, a,b,c,d,e,f)
 		end
 
 		_ACCUMULATOR = _ACCUMULATOR + love.timer.step()

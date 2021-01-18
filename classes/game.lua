@@ -23,6 +23,11 @@ function Game:draw()
 	lg.setColor(_r, _g, _b, _a)
 end
 
+function Game:handle(name, a, b, c, d, e, f)
+	if @.current == '' || !@.rooms[@.current][name] then return end
+	@.rooms[@.current][name](@.rooms[@.current], a, b, c, d, e, f)
+end
+
 function Game:add_room(id, room)
 	room.id     = id
 	@.rooms[id] = room

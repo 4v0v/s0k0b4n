@@ -1,6 +1,6 @@
 function love.conf(t)
 	t.console = true
-	t.window.title = 'tetris'
+	t.window.title = 'sokoban'
 	t.window.x = 1111
 	t.window.y = 90
 	-- t.window.width = 1000
