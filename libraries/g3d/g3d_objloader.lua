@@ -1,34 +1,19 @@
--- written by groverbuger for g3d
--- january 2021
--- MIT license
-
-----------------------------------------------------------------------------------------------------
--- simple obj loader
-----------------------------------------------------------------------------------------------------
-
--- stitch two tables together and return the result
 local function concatTables(t1,t2,t3)
-    local ret = {}
+	local tbl = {}
 
-    for i,v in ipairs(t1) do
-        ret[#ret +1] = v
-    end
-    for i,v in ipairs(t2) do
-        ret[#ret +1] = v
-    end
-    for i,v in ipairs(t3) do
-        ret[#ret +1] = v
-    end
+	for _, v in ipairs(t1) do table.insert(tbl, v) end
+	for _, v in ipairs(t2) do table.insert(tbl, v) end
+	for _, v in ipairs(t3) do table.insert(tbl, v) end
 
-    return ret
+	return tbl
 end
 
 -- give path of file
 -- returns a lua table representation
 local function objLoader(path)
-    local verts = {}
-    local faces = {}
-    local uvs = {}
+    local verts   = {}
+    local faces   = {}
+    local uvs     = {}
     local normals = {}
 
     -- go line by line through the file
@@ -113,14 +98,14 @@ local function objLoader(path)
     end
 
     -- put it all together in the right order
-    local compiled = {}
-    for i,face in pairs(faces) do
-        compiled[#compiled +1] = concatTables(verts[face[1]], uvs[face[2]], normals[face[3]])
-        compiled[#compiled +1] = concatTables(verts[face[4]], uvs[face[5]], normals[face[6]])
-        compiled[#compiled +1] = concatTables(verts[face[7]], uvs[face[8]], normals[face[9]])
-    end
+	local compiled = {}
+	for i,face in pairs(faces) do
+		compiled[#compiled +1] = concatTables(verts[face[1]], uvs[face[2]], normals[face[3]])
+		compiled[#compiled +1] = concatTables(verts[face[4]], uvs[face[5]], normals[face[6]])
+		compiled[#compiled +1] = concatTables(verts[face[7]], uvs[face[8]], normals[face[9]])
+	end
 
-    return compiled
+	return compiled
 end
 
 return objLoader

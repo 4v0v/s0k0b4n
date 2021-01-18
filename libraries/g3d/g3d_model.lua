@@ -2,9 +2,9 @@
 -- january 2021
 -- MIT license
 
-local vectors     = require(G3D_PATH .. "/vectors")
-local matrices    = require(G3D_PATH .. "/matrices")
-local loadObjFile = require(G3D_PATH .. "/objloader")
+local vectors     = require(G3D_PATH .. "/g3d_vectors")
+local matrices    = require(G3D_PATH .. "/g3d_matrices")
+local loadObjFile = require(G3D_PATH .. "/g3d_objloader")
 
 local Model = {}
 
@@ -15,7 +15,7 @@ Model.vertexFormat = {
 	{"VertexColor"   , "byte" , 4},
 }
 
-Model.shader = require(G3D_PATH .. "/shader")
+Model.shader = require(G3D_PATH .. "/g3d_shader")
 
 function Model:new(given, texture, translation, rotation, scale)
     local obj = setmetatable({}, {__index = Model})
@@ -64,23 +64,23 @@ function Model:setTransform(translation, rotation, scale)
 end
 
 function Model:setTranslation(x, y, z)
-	self.translation[1] = x
-	self.translation[2] = y
-	self.translation[3] = z
+	self.translation[1] = x or self.translation[1]
+	self.translation[2] = y or self.translation[2]
+	self.translation[3] = z or self.translation[3]
 	self:updateMatrix()
 end
 
 function Model:setRotation(x, y, z)
-	self.rotation[1] = x
-	self.rotation[2] = y
-	self.rotation[3] = z
+	self.rotation[1] = x or self.rotation[1]
+	self.rotation[2] = y or self.rotation[2]
+	self.rotation[3] = z or self.rotation[3]
 	self:updateMatrix()
 end
 
 function Model:setScale(x, y, z)
-	self.scale[1] = x
-	self.scale[2] = y or x
-	self.scale[3] = z or x
+	self.scale[1] = x or self.scale[1]
+	self.scale[2] = y or self.scale[2]
+	self.scale[3] = z or self.scale[3]
 	self:updateMatrix()
 end
 
@@ -92,12 +92,13 @@ function Model:setXRotation(x) self:setRotation(x, _, _) end
 function Model:setYRotation(y) self:setRotation(_, y, _) end
 function Model:setZRotation(z) self:setRotation(_, _, z) end
 
+function Model:setGlobalScale(s) self:setScale(s, s, s) end
 function Model:setXScale(x) self:setScale(x, _, _) end
 function Model:setYScale(y) self:setScale(_, y, _) end
 function Model:setZScale(z) self:setScale(_, _, z) end
 
 function Model:updateMatrix()
-	self.matrix = matrices.getTransformationMatrix(self.translation, self.rotation, self.scale)
+	self.matrix = matrices.get_transformation(self.translation, self.rotation, self.scale)
 end
 
 function Model:draw()
