@@ -37,14 +37,14 @@ function love.run()
 		require('libraries/monkey')
 
 		require_all('classes')
-		require_all('rooms')
+		require_all('scenes')
 		require_all('entities', {recursive = true})
 
 		game = Game()
-		game:add_room('menu', Menu_room())
-		game:add_room('play', Play_room())
+		game:add_scene('menu', Menu_scene())
+		game:add_scene('play', Play_scene())
 
-		game:change_room('menu')
+		game:change_scene('menu')
 	end
 
 	function love.update(dt)

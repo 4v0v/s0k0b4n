@@ -2,7 +2,7 @@ Game = Class:extend('Game')
 
 function Game:new()
 	@.current  = ''
-	@.rooms    = {}
+	@.scenes    = {}
 	@.timer    = Timer()
 	@.bg_color = {r = 0, g = 0, b = 0, a = 0}
 end
@@ -10,12 +10,12 @@ end
 function Game:update(dt)
 	@.timer:update(dt)
 	if @.current == '' then return end
-	@.rooms[@.current]:update(dt)
+	@.scenes[@.current]:update(dt)
 end
 
 function Game:draw()
 	if @.current == '' then return end
-	@.rooms[@.current]:draw()
+	@.scenes[@.current]:draw()
 
 	local _r, _g, _b, _a = lg.getColor()
 	lg.setColor(@.bg_color.r, @.bg_color.g, @.bg_color.b, @.bg_color.a)
@@ -24,30 +24,30 @@ function Game:draw()
 end
 
 function Game:handle(name, a, b, c, d, e, f)
-	if @.current == '' || !@.rooms[@.current][name] then return end
-	@.rooms[@.current][name](@.rooms[@.current], a, b, c, d, e, f)
+	if @.current == '' || !@.scenes[@.current][name] then return end
+	@.scenes[@.current][name](@.scenes[@.current], a, b, c, d, e, f)
 end
 
-function Game:add_room(id, room)
-	room.id     = id
-	@.rooms[id] = room
+function Game:add_scene(id, scene)
+	scene.id     = id
+	@.scenes[id] = scene
 end
 
-function Game:change_room(name, ...)
+function Game:change_scene(name, ...)
 	local args = {...}
 	local previous = @.current
-	if @.current != '' then @.rooms[@.current]:exit() end
+	if @.current != '' then @.scenes[@.current]:exit() end
 	@.current = name
-	@.rooms[@.current]:enter(previous, args)
+	@.scenes[@.current]:enter(previous, args)
 end
 
-function Game:change_room_with_transition(name, ...)
+function Game:change_scene_with_transition(name, ...)
 	local args = {...}
 	@.timer:tween(.4, @.bg_color, {a = 1}, 'in-cubic', 'transition_fade_in', fn() 
 		local previous = @.current
-		if @.current != '' then @.rooms[@.current]:exit() end
+		if @.current != '' then @.scenes[@.current]:exit() end
 		@.current = name
-		@.rooms[@.current]:enter(previous, args)
+		@.scenes[@.current]:enter(previous, args)
 		@.timer:tween(.4, @.bg_color, {a = 0}, 'out-cubic', 'transition_fade_out')
 	end)
 end

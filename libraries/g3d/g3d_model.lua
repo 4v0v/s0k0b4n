@@ -28,7 +28,7 @@ function Model:new(given, texture, translation, rotation, scale)
 	model.mesh    = love.graphics.newMesh(model.vertexFormat, model.verts, "triangles")
 	
 	model.mesh:setTexture(model.texture)
-	model:setTransform(translation, rotation, scale)
+	model:set_transform(translation, rotation, scale)
 
 	return model
 end
@@ -56,48 +56,62 @@ function Model:makeNormals(flipped)
 	end
 end
 
-function Model:setTransform(translation, rotation, scale)
+function Model:set_transform(translation, rotation, scale)
 	self.translation = translation or {0,0,0}
 	self.rotation    = rotation    or {0,0,0}
 	self.scale       = scale       or {1,1,1}
-	self:updateMatrix()
+	self:update_matrix()
 end
 
-function Model:setTranslation(x, y, z)
+function Model:set_translation(x, y, z)
 	self.translation[1] = x or self.translation[1]
 	self.translation[2] = y or self.translation[2]
 	self.translation[3] = z or self.translation[3]
-	self:updateMatrix()
+	self:update_matrix()
 end
 
-function Model:setRotation(x, y, z)
+function Model:set_rotation(x, y, z)
 	self.rotation[1] = x or self.rotation[1]
 	self.rotation[2] = y or self.rotation[2]
 	self.rotation[3] = z or self.rotation[3]
-	self:updateMatrix()
+	self:update_matrix()
 end
 
-function Model:setScale(x, y, z)
+function Model:set_scale(x, y, z)
 	self.scale[1] = x or self.scale[1]
 	self.scale[2] = y or self.scale[2]
 	self.scale[3] = z or self.scale[3]
-	self:updateMatrix()
+	self:update_matrix()
 end
 
-function Model:setXTranslation(x) self:setTranslation(x, _, _) end
-function Model:setYTranslation(y) self:setTranslation(_, y, _) end
-function Model:setZTranslation(z) self:setTranslation(_, _, z) end
+function Model:set_x(x) self:set_translation(x, _, _) end
+function Model:set_y(y) self:set_translation(_, y, _) end
+function Model:set_z(z) self:set_translation(_, _, z) end
 
-function Model:setXRotation(x) self:setRotation(x, _, _) end
-function Model:setYRotation(y) self:setRotation(_, y, _) end
-function Model:setZRotation(z) self:setRotation(_, _, z) end
+function Model:move_x(x) self:set_translation(self.translation[1] + x, _, _) end
+function Model:move_y(y) self:set_translation(_, self.translation[2] + y, _) end
+function Model:move_z(z) self:set_translation(_, _, self.translation[3] + z) end
 
-function Model:setGlobalScale(s) self:setScale(s, s, s) end
-function Model:setXScale(x) self:setScale(x, _, _) end
-function Model:setYScale(y) self:setScale(_, y, _) end
-function Model:setZScale(z) self:setScale(_, _, z) end
+function Model:set_rx(x) self:set_rotation(x, _, _) end
+function Model:set_ry(y) self:set_rotation(_, y, _) end
+function Model:set_rz(z) self:set_rotation(_, _, z) end
 
-function Model:updateMatrix()
+function Model:rotate_x(x) self:set_rotation(self.rotation[1] + x, _, _) end
+function Model:rotate_y(y) self:set_rotation(_, self.rotation[2] + y, _) end
+function Model:rotate_z(z) self:set_rotation(_, _, self.rotation[3] + z) end
+
+function Model:set_s(s)  self:set_scale(s, s, s) end
+function Model:set_sx(x) self:set_scale(x, _, _) end
+function Model:set_sy(y) self:set_scale(_, y, _) end
+function Model:set_sz(z) self:set_scale(_, _, z) end
+
+function Model:scale(s)   self:set_scale(self.scale[1] + s, self.scale[2] + s, self.scale[3] + s) end
+function Model:scale_x(x) self:set_scale(self.scale[1] + x, _, _) end
+function Model:scale_y(y) self:set_scale(_, self.scale[2] + y, _) end
+function Model:scale_z(z) self:set_scale(_, _, self.scale[3] + z) end
+
+
+function Model:update_matrix()
 	self.matrix = matrices.get_transformation(self.translation, self.rotation, self.scale)
 end
 

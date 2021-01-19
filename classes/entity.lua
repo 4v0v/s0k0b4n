@@ -3,7 +3,7 @@ Entity = Class:extend('Entity')
 function Entity:new(opts)
 	@.timer   = Timer()
 	@.dead    = false
-	@.room    = {}
+	@.scene   = {}
 	@.id      = ''
 	@.types   = get(opts, 'types', {})
 	@.pos     = Vec2(get(opts, 'x', 0), get(opts, 'y', 0))
@@ -34,8 +34,8 @@ end
 
 function Entity:kill()
 	@.timer:destroy()
-	@.dead = true
-	@.room = nil
+	@.dead  = true
+	@.scene = nil
 end
 
 function Entity:set_state(state)

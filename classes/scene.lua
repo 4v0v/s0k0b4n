@@ -1,6 +1,6 @@
-Room = Class:extend('Room')
+Scene = Class:extend('Scene')
 
-function Room:new()
+function Scene:new()
 	@.id     = ''
 	@.timer  = Timer()
 	@.camera = Camera()
@@ -10,7 +10,7 @@ function Room:new()
 	@._ents_by_type = {}
 end
 
-function Room:update(dt)
+function Scene:update(dt)
 	@.timer:update(dt)
 	@.camera:update(dt)
 
@@ -40,7 +40,7 @@ function Room:update(dt)
 	@._queue = {}
 end
 
-function Room:draw()
+function Scene:draw()
 	table.sort(@._ents, fn(a, b) if a.z == b.z then return a.id < b.id else return a.z < b.z end end)
 
 	local _r, _g, _b, _a = lg.getColor()
@@ -73,7 +73,7 @@ function Room:draw()
 	lg.setColor(_r, _g, _b, _a)
 end
 
-function Room:add(a, b, c)
+function Scene:add(a, b, c)
 	local id, types, entity
 
 	if   type(a) == 'string' and type(b) == 'table' and type(c) == 'nil' then
@@ -98,29 +98,29 @@ function Room:add(a, b, c)
 	if @._ents_by_id[id] then
 		print('id already exist') 
 	else
-		entity.room  = @
+		entity.scene  = @
 		@._queue[id] = entity
 	end 
 
 	return entity
 end
 
-function Room:kill(id) 
+function Scene:kill(id) 
 	local entity = @:get(id)
 	if entity then entity:kill() end
 end
 
-function Room:get(id) 
+function Scene:get(id) 
 	local entity = @._ents_by_id[id]
 	if !entity or entity.dead then return false end
 	return entity
 end
 
-function Room:get_all()
+function Scene:get_all()
 	return @._ents
 end
 
-function Room:get_by_type(...)
+function Scene:get_by_type(...)
 	local entities = {}
 	local types    = {...}
 	local filtered = {} -- filter duplicate entities using id
@@ -138,74 +138,74 @@ function Room:get_by_type(...)
 	return entities
 end
 
-function Room:count(...)
+function Scene:count(...)
 	return #@:get_by_type(...)
 end
 
-function Room:draw_inside_camera_bg()
+function Scene:draw_inside_camera_bg()
 end
 
-function Room:draw_outside_camera_bg()
+function Scene:draw_outside_camera_bg()
 end
 
-function Room:draw_inside_camera_fg()
+function Scene:draw_inside_camera_fg()
 end
 
-function Room:draw_outside_camera_fg()
+function Scene:draw_outside_camera_fg()
 end
 
-function Room:enter() 
+function Scene:enter() 
 end
 
-function Room:exit() 
+function Scene:exit() 
 end
 
-function Room:after(...)
+function Scene:after(...)
 	@.timer:after(...)
 end
 
-function Room:tween(...)
+function Scene:tween(...)
 	@.timer:tween(...)
 end
 
-function Room:every(...)
+function Scene:every(...)
 	@.timer:every(...)
 end
 
-function Room:every_immediate(...)
+function Scene:every_immediate(...)
 	@.timer:every_immediate(...)
 end
 
-function Room:during(...)
+function Scene:during(...)
 	@.timer:during(...)
 end
 
-function Room:once(...)
+function Scene:once(...)
 	@.timer:once(...)
 end
 
-function Room:always(...)
+function Scene:always(...)
 	@.timer:always(...)
 end
 
-function Room:zoom(...)
+function Scene:zoom(...)
 	@.camera:zoom(...)
 end
 
-function Room:shake(...)
+function Scene:shake(...)
 	@.camera:shake(...)
 end
 
-function Room:follow(...)
+function Scene:follow(...)
 	@.camera:follow(...)
 end
 
-function Room:get_mouse_position_inside_camera() 
+function Scene:get_mouse_position_inside_camera() 
 	local x, y = @.camera:get_mouse_position()
 	return {x, y}
 end
 
-function Room:get_mouse_position_outside_camera()
+function Scene:get_mouse_position_outside_camera()
 	local x, y = lm.getPosition()
 	return {x, y} 
 end
