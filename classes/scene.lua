@@ -164,6 +164,18 @@ function Scene:after(...)
 	@.timer:after(...)
 end
 
+function Scene:after_true(...)
+	@.timer:after_true(...)
+end
+
+function Scene:every_true(...)
+	@.timer:every_true(...)
+end
+
+function Scene:during_true(...)
+	@.timer:during_true(...)
+end
+
 function Scene:tween(...)
 	@.timer:tween(...)
 end

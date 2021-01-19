@@ -14,7 +14,6 @@
    \_/__/                
 --]]
 
-
 G3D_PATH = ...
 love.graphics.setDepthMode("lequal", true)
 

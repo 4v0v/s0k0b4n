@@ -18,6 +18,7 @@ function Play_scene:new(id)
 			@:tween(1, @, {pos = 1}, 'in-out-cubic')
 		end)
 	end)
+
 end
 
 function Play_scene:enter()
@@ -27,12 +28,12 @@ end
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
-	if down('q')      then g3d.Camera:first_person_movement(dt, 'left')     end
-	if down('d')      then g3d.Camera:first_person_movement(dt, 'right')    end
+	if down('q')        then g3d.Camera:first_person_movement(dt, 'left')     end
+	if down('d')        then g3d.Camera:first_person_movement(dt, 'right')    end
 	if down('lshift') || down('space') then g3d.Camera:first_person_movement(dt, 'up') end
-	if down('lctrl')  then g3d.Camera:first_person_movement(dt, 'down')     end
-	if down('z')      then g3d.Camera:first_person_movement(dt, 'forward')  end
-	if down('s')      then g3d.Camera:first_person_movement(dt, 'backward') end
+	if down('lctrl')    then g3d.Camera:first_person_movement(dt, 'down')     end
+	if down('z')        then g3d.Camera:first_person_movement(dt, 'forward')  end
+	if down('s')        then g3d.Camera:first_person_movement(dt, 'backward') end
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end

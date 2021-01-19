@@ -115,9 +115,7 @@ function Camera:first_person_movement(dt, direction)
 
 	-- update the camera's in the shader
 	-- only if the camera moved, for a slight performance benefit
-	if cam_moved then
-		self:look_in_dir(self.pos[1],self.pos[2],self.pos[3], self.fps_dir,self.fps_pitch)
-	end
+	if cam_moved then self:look_in_dir() end
 end
 
 -- use this in your love.mousemoved function, passing in the movements
@@ -128,7 +126,7 @@ function Camera:first_person_look(dx,dy)
 		math.min(self.fps_pitch - dy * sensitivity, math.pi * 0.5), 
 		math.pi*-0.5
 	)
-	self:look_in_dir(self.pos[1], self.pos[2], self.pos[3], self.fps_dir, self.fps_pitch)
+	self:look_in_dir()
 end
 
 return Camera:new()
