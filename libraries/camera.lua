@@ -24,7 +24,7 @@ function Camera:update(dt)
 		if self.shk.s ~= 0 then self.shk.xrs, self.shk.yrs = _rand()*self.shk.s, _rand()*self.shk.s else self.shk.xrs, self.shk.yrs = 0, 0 end
 		self.shk.timer = self.shk.timer - self.shk.tick
 	end
-	if math.abs(self.shk.s) > 5  then self.shk.s = _smooth(self.shk.s, 0, 5, dt) else	if self.shk.s ~= 0 then self.shk.s = 0 end end
+	if math.abs(self.shk.s) > 5 then self.shk.s = _smooth(self.shk.s, 0, 5, dt) else if self.shk.s ~= 0 then self.shk.s = 0 end end
 end
 
 function Camera:draw(func)

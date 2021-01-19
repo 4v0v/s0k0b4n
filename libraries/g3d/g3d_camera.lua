@@ -2,7 +2,7 @@ local shader   = require(G3D_PATH .. '/g3d_shader')
 local matrices = require(G3D_PATH .. '/g3d_matrices')
 
 local Camera = {
-	fov         = math.pi/2,
+	fov         = math.pi/3,
 	nearClip    = 0.01,
 	farClip     = 1000,
 	aspectRatio = love.graphics.getWidth()/love.graphics.getHeight(),

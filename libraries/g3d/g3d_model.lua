@@ -18,19 +18,19 @@ Model.vertexFormat = {
 Model.shader = require(G3D_PATH .. "/g3d_shader")
 
 function Model:new(given, texture, translation, rotation, scale)
-    local obj = setmetatable({}, {__index = Model})
+	local model = setmetatable({}, {__index = Model})
 
-		if type(given)   == "string" then given   = loadObjFile(given) end
-		if type(texture) == "string" then texture = love.graphics.newImage(texture) end
+	if type(given)   == "string" then given   = loadObjFile(given) end
+	if type(texture) == "string" then texture = love.graphics.newImage(texture) end
 
-		obj.verts   = given
-		obj.texture = texture
-		obj.mesh    = love.graphics.newMesh(obj.vertexFormat, obj.verts, "triangles")
-		
-		obj.mesh:setTexture(obj.texture)
-		obj:setTransform(translation, rotation, scale)
+	model.verts   = given
+	model.texture = texture
+	model.mesh    = love.graphics.newMesh(model.vertexFormat, model.verts, "triangles")
+	
+	model.mesh:setTexture(model.texture)
+	model:setTransform(translation, rotation, scale)
 
-    return obj
+	return model
 end
 
 function Model:makeNormals(flipped)
