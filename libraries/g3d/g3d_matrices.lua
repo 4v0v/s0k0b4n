@@ -1,6 +1,5 @@
+local Vectors = require(G3D_PATH .. "/g3d_vectors")
 local Matrices = {}
-local vectors = require(G3D_PATH .. "/g3d_vectors")
-local cos, sin, tan = math.cos, math.sin, math.tan
 
 function Matrices.get_transformation(translation, rotation, scale)
 	local matrix = Matrices.get_identity()
@@ -13,26 +12,26 @@ function Matrices.get_transformation(translation, rotation, scale)
 	-- rotations
 	-- x
 	local rx = Matrices.get_identity()
-	rx[6]  = cos(rotation[1])
-	rx[7]  = -1*sin(rotation[1])
-	rx[10] = sin(rotation[1])
-	rx[11] = cos(rotation[1])
+	rx[6]  = math.cos(rotation[1])
+	rx[7]  = -1*math.sin(rotation[1])
+	rx[10] = math.sin(rotation[1])
+	rx[11] = math.cos(rotation[1])
 	matrix = Matrices.multiply(matrix, rx)
 
 	-- y
 	local ry = Matrices.get_identity()
-	ry[1]  = cos(rotation[2])
-	ry[3]  = sin(rotation[2])
-	ry[9]  = -1*sin(rotation[2])
-	ry[11] = cos(rotation[2])
+	ry[1]  = math.cos(rotation[2])
+	ry[3]  = math.sin(rotation[2])
+	ry[9]  = -1*math.sin(rotation[2])
+	ry[11] = math.cos(rotation[2])
 	matrix = Matrices.multiply(matrix, ry)
 
 	-- z
 	local rz = Matrices.get_identity()
-	rz[1] = cos(rotation[3])
-	rz[2] = -1*sin(rotation[3])
-	rz[5] = sin(rotation[3])
-	rz[6] = cos(rotation[3])
+	rz[1] = math.cos(rotation[3])
+	rz[2] = -1*math.sin(rotation[3])
+	rz[5] = math.sin(rotation[3])
+	rz[6] = math.cos(rotation[3])
 	matrix = Matrices.multiply(matrix, rz)
 
 	-- scale
@@ -46,7 +45,7 @@ function Matrices.get_transformation(translation, rotation, scale)
 end
 
 function Matrices.get_projection(fov, near, far, aspectRatio)
-	local top    = near * tan(fov/2)
+	local top    = near * math.tan(fov/2)
 	local bottom = -1*top
 	local right  = top * aspectRatio
 	local left   = -1*right
@@ -60,7 +59,7 @@ function Matrices.get_projection(fov, near, far, aspectRatio)
 end
 
 function Matrices.get_orthographic(fov, size, near, far, aspectRatio)
-	local top    = size * tan(fov/2)
+	local top    = size * math.tan(fov/2)
 	local bottom = -1*top
 	local right  = top * aspectRatio
 	local left   = -1*right
@@ -74,14 +73,14 @@ function Matrices.get_orthographic(fov, size, near, far, aspectRatio)
 end
 
 function Matrices.get_view(eye, target, down)
-	local z = vectors.normalize({eye[1] - target[1], eye[2] - target[2], eye[3] - target[3]})
-	local x = vectors.normalize(vectors.crossProduct(down, z))
-	local y = vectors.crossProduct(z, x)
+	local z = Vectors.normalize({eye[1] - target[1], eye[2] - target[2], eye[3] - target[3]})
+	local x = Vectors.normalize(Vectors.crossProduct(down, z))
+	local y = Vectors.crossProduct(z, x)
 
 	return {
-		x[1], x[2], x[3], -1 * vectors.dotProduct(x, eye),
-		y[1], y[2], y[3], -1 * vectors.dotProduct(y, eye),
-		z[1], z[2], z[3], -1 * vectors.dotProduct(z, eye),
+		x[1], x[2], x[3], -1 * Vectors.dotProduct(x, eye),
+		y[1], y[2], y[3], -1 * Vectors.dotProduct(y, eye),
+		z[1], z[2], z[3], -1 * Vectors.dotProduct(z, eye),
 		0, 0, 0, 1,
 	}
 end

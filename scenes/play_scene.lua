@@ -27,12 +27,12 @@ end
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
-	if down('q')      then g3d.Camera:firstPersonMovement(dt, 'left')     end
-	if down('d')      then g3d.Camera:firstPersonMovement(dt, 'right')    end
-	if down('lshift') || down('space') then g3d.Camera:firstPersonMovement(dt, 'up') end
-	if down('lctrl')  then g3d.Camera:firstPersonMovement(dt, 'down')     end
-	if down('z')      then g3d.Camera:firstPersonMovement(dt, 'forward')  end
-	if down('s')      then g3d.Camera:firstPersonMovement(dt, 'backward') end
+	if down('q')      then g3d.Camera:first_person_movement(dt, 'left')     end
+	if down('d')      then g3d.Camera:first_person_movement(dt, 'right')    end
+	if down('lshift') || down('space') then g3d.Camera:first_person_movement(dt, 'up') end
+	if down('lctrl')  then g3d.Camera:first_person_movement(dt, 'down')     end
+	if down('z')      then g3d.Camera:first_person_movement(dt, 'forward')  end
+	if down('s')      then g3d.Camera:first_person_movement(dt, 'backward') end
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end
@@ -66,8 +66,11 @@ function Play_scene:draw_outside_camera_fg()
 	lg.setCanvas()
 
 	lg.draw(@.canvas, 0, 0)
+	lg.print('x = ' .. g3d.Camera.pos[1] , 0, 0 )
+	lg.print('y = ' .. g3d.Camera.pos[2] , 0, 15 )
+	lg.print('z = ' .. g3d.Camera.pos[3] , 0, 30 )
 end
 
 function Play_scene:mousemoved(x,y, dx,dy)
-	g3d.Camera:firstPersonLook(dx,dy)
+	g3d.Camera:first_person_look(dx,dy)
 end

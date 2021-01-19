@@ -1,26 +1,21 @@
--- written by groverbuger for g3d
--- january 2021
--- MIT license
+local vectors  = require(G3D_PATH .. "/g3d_vectors")
+local matrices = require(G3D_PATH .. "/g3d_matrices")
+local load_obj = require(G3D_PATH .. "/g3d_objloader")
 
-local vectors     = require(G3D_PATH .. "/g3d_vectors")
-local matrices    = require(G3D_PATH .. "/g3d_matrices")
-local loadObjFile = require(G3D_PATH .. "/g3d_objloader")
-
-local Model = {}
-
-Model.vertexFormat = {
-	{"VertexPosition", "float", 3},
-	{"VertexTexCoord", "float", 2},
-	{"VertexNormal"  , "float", 3},
-	{"VertexColor"   , "byte" , 4},
+local Model = {
+	vertexFormat = {
+		{"VertexPosition", "float", 3},
+		{"VertexTexCoord", "float", 2},
+		{"VertexNormal"  , "float", 3},
+		{"VertexColor"   , "byte" , 4},
+	},
+	shader = require(G3D_PATH .. "/g3d_shader")
 }
-
-Model.shader = require(G3D_PATH .. "/g3d_shader")
 
 function Model:new(given, texture, translation, rotation, scale)
 	local model = setmetatable({}, {__index = Model})
 
-	if type(given)   == "string" then given   = loadObjFile(given) end
+	if type(given)   == "string" then given   = load_obj(given) end
 	if type(texture) == "string" then texture = love.graphics.newImage(texture) end
 
 	model.verts   = given
@@ -33,7 +28,18 @@ function Model:new(given, texture, translation, rotation, scale)
 	return model
 end
 
-function Model:makeNormals(flipped)
+function Model:update_matrix()
+	self.matrix = matrices.get_transformation(self.translation, self.rotation, self.scale)
+end
+
+function Model:draw()
+	love.graphics.setShader(self.shader)
+	self.shader:send("modelMatrix", self.matrix)
+	love.graphics.draw(self.mesh)
+	love.graphics.setShader()
+end
+
+function Model:make_normals(flipped)
 	for i=1, #self.verts, 3 do
 		local vp = self.verts[i]
 		local v  = self.verts[i+1]
@@ -109,17 +115,5 @@ function Model:scale(s)   self:set_scale(self.scale[1] + s, self.scale[2] + s, s
 function Model:scale_x(x) self:set_scale(self.scale[1] + x, _, _) end
 function Model:scale_y(y) self:set_scale(_, self.scale[2] + y, _) end
 function Model:scale_z(z) self:set_scale(_, _, self.scale[3] + z) end
-
-
-function Model:update_matrix()
-	self.matrix = matrices.get_transformation(self.translation, self.rotation, self.scale)
-end
-
-function Model:draw()
-	love.graphics.setShader(self.shader)
-	self.shader:send("modelMatrix", self.matrix)
-	love.graphics.draw(self.mesh)
-	love.graphics.setShader()
-end
 
 return setmetatable({}, {__call = Model.new})
