@@ -11,6 +11,30 @@ function Play_scene:new(id)
 	@.magica = g3d.Model('assets/obj/magica_voxel.obj', 'assets/images/magica_voxel.png', {8, 2, 1}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
 
+
+	@.grid = Grid(19, 10, { 
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		1, _, 1, _, 1, 1, 1, _, 1, _, _, _, 1, _, _, _, 1, 1, 1,
+		1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
+		1, 1, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
+		1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
+		1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+	})
+	@.cubes = {}
+
+	@.grid:foreach(fn(grid, i, j)
+		local value = grid:get(i, j)
+		if !value then return end
+		table.insert(@.cubes, { 
+			value = value, 
+			cube = g3d.Model('assets/obj/cube.obj', _ , {i, -j, 5}, _, {.5, .5, .5})
+		})
+	end)
+
 	@.t = 0
 	@.pos = 1
 	@:every_immediate(2, fn() 
@@ -18,16 +42,20 @@ function Play_scene:new(id)
 			@:tween(1, @, {pos = 1}, 'in-out-cubic')
 		end)
 	end)
-
 end
 
 function Play_scene:enter()
-	love.mouse.setRelativeMode(true)
+	lm.setRelativeMode(true)
+end
+
+function Play_scene:exit()
+	lm.setRelativeMode(false)
 end
 
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
+	if pressed('escape') then game:change_scene_with_transition('menu') end
 	if down('q')        then g3d.Camera:first_person_movement(dt, 'left')     end
 	if down('d')        then g3d.Camera:first_person_movement(dt, 'right')    end
 	if down('lshift') || down('space') then g3d.Camera:first_person_movement(dt, 'up') end
@@ -41,7 +69,7 @@ function Play_scene:update(dt)
 
 	@.t += dt
 	@.moon:set_translation(math.cos(@.t)*5, 0, math.sin(@.t)*5 +4)
-	@.moon:set_ry(-1*@.t) 
+	@.moon:set_ry(@.t)
 
 	@.cube:set_y(@.pos)
 end
@@ -64,14 +92,27 @@ function Play_scene:draw_outside_camera_fg()
 		lg.setColor(1, 1, 1)
 		@.magica:draw()
 
+		ifor @.cubes do
+			if it.value == 1 then lg.setColor(1, 0, 1) end
+			if it.value == 2 then lg.setColor(0, 1, 0) end
+			if it.value == 3 then lg.setColor(0, 0, 1) end
+			it.cube:draw()
+		end
+
+		lg.setColor(1, 1, 1)
+
 	lg.setCanvas()
 
 	lg.draw(@.canvas, 0, 0)
-	lg.print('x = ' .. g3d.Camera.pos[1] , 0, 0 )
-	lg.print('y = ' .. g3d.Camera.pos[2] , 0, 15 )
-	lg.print('z = ' .. g3d.Camera.pos[3] , 0, 30 )
+	lg.print(
+		'x     = ' .. rounded(g3d.Camera.x    , 2) .. '\n' ..
+		'y     = ' .. rounded(g3d.Camera.y    , 2) .. '\n' ..
+		'z     = ' .. rounded(g3d.Camera.z    , 2) .. '\n' ..
+		'dir   = ' .. rounded(g3d.Camera.dir  , 2) .. '\n' ..
+		'pitch = ' .. rounded(g3d.Camera.pitch, 2)
+	)
 end
 
 function Play_scene:mousemoved(x,y, dx,dy)
-	g3d.Camera:first_person_look(dx,dy)
+	g3d.Camera:mousemoved(dx,dy)
 end

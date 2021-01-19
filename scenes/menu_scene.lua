@@ -23,6 +23,8 @@ end
 function Menu_scene:update(dt)
 	Menu_scene.super.update(@, dt)
 
+	if pressed('escape') then love.event.quit() end
+
 	local play_btn = @:get('play_btn')
 	local quit_btn = @:get('quit_btn')
 

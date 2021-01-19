@@ -155,6 +155,10 @@ function print(t)
 	for k,v in pairs(others)    do print('[' .. v.key .. '] : ' .. tostring(v.value)) end
 end
 
+function rounded(number, n)
+	return tonumber(string.format("%." ..n .."f", number))
+end
+
 function table.keys(t) 
 	local _keys = {}
 	for k, _ in pairs(t) do _keys[#_keys + 1] = k end 
@@ -338,7 +342,6 @@ function point_poly_collision(p, poly)
 	return (math.abs(total)==4)
 end
  
-
 function rect_rect_inside(r1, r2)
 	if #r1 == 4 then r1 = {x = r1[1], y = r1[2], w = r1[3], h = r1[4]} end
 	if #r2 == 4 then r2 = {x = r2[1], y = r2[2], w = r2[3], h = r2[4]} end

@@ -1,8 +1,7 @@
--- written by groverbuger for g3d
--- january 2021
--- MIT license
-
 --[[
+ based on groverbuger's g3d 
+ https://github.com/groverburger/g3d
+ MIT license
          __       __     
        /'__`\    /\ \    
    __ /\_\L\ \   \_\ \   

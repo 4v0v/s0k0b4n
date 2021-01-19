@@ -62,6 +62,18 @@ function Entity:every(...)
 	@.timer:every(...)
 end
 
+function Entity:after_true(...)
+	@.timer:after_true(...)
+end
+
+function Entity:every_true(...)
+	@.timer:every_true(...)
+end
+
+function Entity:during_true(...)
+	@.timer:during_true(...)
+end
+
 function Entity:every_immediate(...)
 	@.timer:every_immediate(...)
 end

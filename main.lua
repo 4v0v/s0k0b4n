@@ -24,7 +24,7 @@ function love.run()
 		lg.setDefaultFilter('nearest', 'nearest')
 		lg.setLineStyle('rough')
 		lk.setKeyRepeat(true)
-		lm.setRelativeMode(false)
+		
 		
 		g3d     = require('libraries/g3d')
 		Class   = require('libraries/class')
@@ -48,7 +48,6 @@ function love.run()
 	end
 
 	function love.update(dt)
-		if pressed('escape') then love.load() end
 		game:update(dt)
 	end
 	
