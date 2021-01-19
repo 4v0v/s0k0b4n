@@ -8,10 +8,10 @@ function Play_room:new(id)
 	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 0}, _, {.5, .5, .5})
 	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {5, 0, 0}, _, {.5, .5, .5})
 	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 0}, _, {.5, .5, .5})
+	@.magica = g3d.Model('assets/obj/magica_voxel.obj', 'assets/images/magica_voxel.png', {8, 2, 1}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
 
 	@.t = 0
-
 	@.pos = 1
 	@:every_immediate(2, fn() 
 		@:tween(1, @, {pos = 4}, 'in-out-cubic', _ , fn() 
@@ -30,16 +30,14 @@ function Play_room:update(dt)
 
 	if down('q')      then g3d.Camera:firstPersonMovement(dt, 'left')     end
 	if down('d')      then g3d.Camera:firstPersonMovement(dt, 'right')    end
-	if down('lshift') || down('space') then g3d.Camera:firstPersonMovement(dt, 'up')       end
+	if down('lshift') || down('space') then g3d.Camera:firstPersonMovement(dt, 'up') end
 	if down('lctrl')  then g3d.Camera:firstPersonMovement(dt, 'down')     end
 	if down('z')      then g3d.Camera:firstPersonMovement(dt, 'forward')  end
 	if down('s')      then g3d.Camera:firstPersonMovement(dt, 'backward') end
 
-	if pressed('left') then @.cube:translateX(1) end
-
 	@.t += dt
 	@.moon:setTranslation(math.cos(@.t)*5, 0, math.sin(@.t)*5 +4)
-	@.moon:setYRotation(-1*@.t)
+	@.moon:setYRotation(-1*@.t) 
 
 	@.cube:setYTranslation(@.pos)
 end
@@ -60,6 +58,8 @@ function Play_room:draw_outside_camera_fg()
 		@.cube3:draw()
 
 		lg.setColor(1, 1, 1)
+		@.magica:draw()
+
 	lg.setCanvas()
 
 	lg.draw(@.canvas, 0, 0)

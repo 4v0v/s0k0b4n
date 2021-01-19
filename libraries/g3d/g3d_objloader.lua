@@ -1,101 +1,72 @@
 local function concatTables(t1,t2,t3)
 	local tbl = {}
-
 	for _, v in ipairs(t1) do table.insert(tbl, v) end
 	for _, v in ipairs(t2) do table.insert(tbl, v) end
 	for _, v in ipairs(t3) do table.insert(tbl, v) end
-
 	return tbl
 end
 
 -- give path of file
 -- returns a lua table representation
 local function objLoader(path)
-    local verts   = {}
-    local faces   = {}
-    local uvs     = {}
-    local normals = {}
+	local verts   = {}
+	local faces   = {}
+	local uvs     = {}
+	local normals = {}
 
-    -- go line by line through the file
-    for line in love.filesystem.lines(path) do
-        local words = {}
+	for line in love.filesystem.lines(path) do
+		local words = {}
+		
+		for word in line:gmatch('([^'..'%s'..']+)') do table.insert(words, word) end
 
-        -- split the line into words
-        for word in line:gmatch("([^".."%s".."]+)") do
-            table.insert(words, word)
-        end
+		if words[1] == 'v'  then table.insert(verts, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}) end
+		if words[1] == 'vt' then table.insert(uvs, {tonumber(words[2]), tonumber(words[3])}) end
+		if words[1] == 'vn' then table.insert(normals, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}) end
 
-        -- if the first word in this line is a "v", then this defines a vertex
-        if words[1] == "v" then
-            verts[#verts+1] = {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}
-        end
+		-- if the first word in this line is a 'f', then this is a face
+		-- a face takes three arguments which refer to points, each of those points take three arguments
+		-- the arguments a point takes is v,vt,vn
+		if words[1] == 'f' then
+			local store = {}
 
-        -- if the first word in this line is a "vt", then this defines a texture coordinate
-        if words[1] == "vt" then
-            uvs[#uvs+1] = {tonumber(words[2]), tonumber(words[3])}
-        end
+			-- TODO allow models with untriangulated faces
+			assert(#words == 4, 'Faces in '..path..' must be triangulated before they can be used in g3d!')
 
-        -- if the first word in this line is a "vn", then this defines a vertex normal
-        if words[1] == "vn" then
-            normals[#normals+1] = {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}
-        end
+			for i=2, #words do
+				local num = ''
+				local word = words[i]
+				local ii = 1
+				local char = word:sub(ii,ii)
 
-        -- if the first word in this line is a "f", then this is a face
-        -- a face takes three arguments which refer to points, each of those points take three arguments
-        -- the arguments a point takes is v,vt,vn
-        if words[1] == "f" then
-            local store = {}
+				while true do
+					char = word:sub(ii,ii)
+					if char ~= '/' then num = num .. char  else break end
+					ii = ii + 1
+				end
+				table.insert(store, tonumber(num))
 
-            -- TODO allow models with untriangulated faces
-            assert(#words == 4, "Faces in "..path.." must be triangulated before they can be used in g3d!")
+				local num = ''
+				ii = ii + 1
+				while true do
+					char = word:sub(ii,ii)
+					if ii <= #word and char ~= '/' then num = num .. char else break end
+					ii = ii + 1
+				end
+				table.insert(store, tonumber(num))
 
-            for i=2, #words do
-                local num = ""
-                local word = words[i]
-                local ii = 1
-                local char = word:sub(ii,ii)
+				local num = ''
+				ii = ii + 1
+				while true do
+					char = word:sub(ii,ii)
+					if ii <= #word and char ~= '/' then num = num .. char else break end
+					ii = ii + 1
+				end
+				table.insert(store, tonumber(num))
+			end
 
-                while true do
-                    char = word:sub(ii,ii)
-                    if char ~= "/" then
-                        num = num .. char
-                    else
-                        break
-                    end
-                    ii = ii + 1
-                end
-                store[#store+1] = tonumber(num)
-
-                local num = ""
-                ii = ii + 1
-                while true do
-                    char = word:sub(ii,ii)
-                    if ii <= #word and char ~= "/" then
-                        num = num .. char
-                    else
-                        break
-                    end
-                    ii = ii + 1
-                end
-                store[#store+1] = tonumber(num)
-
-                local num = ""
-                ii = ii + 1
-                while true do
-                    char = word:sub(ii,ii)
-                    if ii <= #word and char ~= "/" then
-                        num = num .. char
-                    else
-                        break
-                    end
-                    ii = ii + 1
-                end
-                store[#store+1] = tonumber(num)
-            end
-
-            faces[#faces+1] = store
-        end
-    end
+			table.insert(faces, store)
+		end
+	end
 
     -- put it all together in the right order
 	local compiled = {}
