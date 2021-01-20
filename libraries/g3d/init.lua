@@ -13,14 +13,15 @@
    \_/__/                
 --]]
 
-G3D_PATH = ...
 love.graphics.setDepthMode("lequal", true)
+G3D_PATH     = ...
+local model  = require(G3D_PATH .. "/g3d_model")
+local camera = require(G3D_PATH .. "/g3d_camera")
+G3D_PATH     = nil
 
 local g3d = {}
 
-g3d.Model  = require(G3D_PATH .. "/g3d_model")
-g3d.Camera = require(G3D_PATH .. "/g3d_camera")
-
-G3D_PATH = nil
+g3d.Model  = model
+g3d.Camera = camera
 
 return g3d

@@ -1,28 +1,28 @@
-local matrices = require(G3D_PATH .. '/g3d_matrices')
+local Matrices = require(G3D_PATH .. '/g3d_matrices')
 
 local Camera = {}
 
 function Camera:new()
 	local cam = setmetatable({}, {__index = Camera})
 
+	cam.aspect_ratio = love.graphics.getWidth()/love.graphics.getHeight()
+	cam.shader       = require(G3D_PATH .. "/g3d_shader")
 	cam.fov          = math.pi/3
 	cam.near_clip    = 0.01
 	cam.far_clip     = 1000
 	cam.sensitivity  = 1/300
 	cam.speed        = 20
-	cam.shader       = require(G3D_PATH .. "/g3d_shader")
-	cam.aspect_ratio = love.graphics.getWidth()/love.graphics.getHeight()
 	cam.x            = 0
 	cam.y            = 0
 	cam.z            = 0
-	cam.tx           = 0 -- target
-	cam.ty           = 0 -- target
-	cam.tz           = 0 -- target
-	cam.down         = {0, -1, 0}
+	cam.tx           = 0          -- target
+	cam.ty           = 0          -- target
+	cam.tz           = 0          -- target
+	cam.down         = {0, -1, 0} -- 1: flip camera
 	cam.dir          = 0
 	cam.pitch        = 0
 
-	cam:update_projection_matrix()
+	cam:update_projection_matrix('projection')
 	cam:look_in_dir()
 
 	return cam
@@ -57,34 +57,26 @@ function Camera:look_in_dir(x, y, z, dir, pitch)
 	elseif sign < 0 then sign = -1
 	else                 sign =  0 end
 	
-	local cosPitch = sign * math.max(math.abs(math.cos(self.pitch)), .001)
-	self.tx = self.x + math.sin(self.dir) * cosPitch
+	local cos_pitch = sign * math.max(math.abs(math.cos(self.pitch)), .001)
+	self.tx = self.x + math.sin(self.dir) * cos_pitch
 	self.ty = self.y - math.sin(self.pitch)
-	self.tz = self.z + math.cos(self.dir) * cosPitch
+	self.tz = self.z + math.cos(self.dir) * cos_pitch
 
 	self:update_view_matrix()
 end
 
--- recreate the camera's view matrix from its current values
--- and send the matrix to the shader specified, or the default shader
-function Camera:update_view_matrix(shaderGiven)
-	(shaderGiven or self.shader):send('viewMatrix', matrices.get_view({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+function Camera:update_view_matrix(shader)
+	(shader or self.shader):send('viewMatrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
 end
 
--- recreate the camera's projection matrix from its current values
--- and send the matrix to the shader specified, or the default shader
-function Camera:update_projection_matrix(shaderGiven)
-	(shaderGiven or self.shader):send('projectionMatrix', matrices.get_projection(self.fov, self.near_clip, self.far_clip, self.aspect_ratio))
+function Camera:update_projection_matrix(type, shader)
+	if     type == 'projection'   then
+		(shader or self.shader):send('projectionMatrix', Matrices.get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio))
+	elseif type == 'orthographic' then
+		(shader or self.shader):send('projectionMatrix', Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio))
+	end
 end
 
--- recreate the camera's orthographic projection matrix from its current values
--- and send the matrix to the shader specified, or the default shader
-function Camera:update_orthographic_matrix(size, shaderGiven)
-	(shaderGiven or self.shader):send('projectionMatrix', matrices.get_orthographic(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio))
-end
-
--- simple first person camera movement with WASD
--- put this local function in your love.update to use, passing in dt
 function Camera:first_person_movement(dt, direction)
 	local move_x    = 0
 	local move_y    = 0

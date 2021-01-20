@@ -8,7 +8,7 @@ end
 
 -- give path of file
 -- returns a lua table representation
-local function objLoader(path)
+local function obj_loader(path)
 	local verts   = {}
 	local faces   = {}
 	local uvs     = {}
@@ -79,4 +79,4 @@ local function objLoader(path)
 	return compiled
 end
 
-return objLoader
+return obj_loader

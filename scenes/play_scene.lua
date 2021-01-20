@@ -62,13 +62,14 @@ function Play_scene:update(dt)
 	if down('lctrl')    then g3d.Camera:first_person_movement(dt, 'down')     end
 	if down('z')        then g3d.Camera:first_person_movement(dt, 'forward')  end
 	if down('s')        then g3d.Camera:first_person_movement(dt, 'backward') end
+	if down('g')        then g3d.Camera:look_at(0, 0, 0, 1, 0, 0) end
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end
 	if pressed('down')  then @.cube2:move_y(-1) end
 
 	@.t += dt
-	@.moon:set_translation(math.cos(@.t)*5, 0, math.sin(@.t)*5 +4)
+	@.moon:set_position(math.cos(@.t)*5, 0, math.sin(@.t)*5 +4)
 	@.moon:set_ry(@.t)
 
 	@.cube:set_y(@.pos)
@@ -111,6 +112,11 @@ function Play_scene:draw_outside_camera_fg()
 		'dir   = ' .. rounded(g3d.Camera.dir  , 2) .. '\n' ..
 		'pitch = ' .. rounded(g3d.Camera.pitch, 2)
 	)
+
+	local cx, cy = lg.getWidth()/2, lg.getHeight()/2
+	lg.circle('line', cx, cy, 10)
+	lg.line(cx, cy - 10, cx, cy + 10)
+	lg.line(cx - 10, cy, cx + 10, cy)
 end
 
 function Play_scene:mousemoved(x,y, dx,dy)
