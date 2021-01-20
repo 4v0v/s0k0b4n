@@ -90,6 +90,7 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self:update_matrix()
 end
 
+function Model:position() return {self.x, self.y, self.z} end
 function Model:get_position() return {self.x, self.y, self.z} end
 function Model:get_rotation() return {self.rx, self.ry, self.rz} end
 function Model:get_scale() return {self.sx, self.sy, self.sz} end

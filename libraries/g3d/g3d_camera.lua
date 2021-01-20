@@ -8,54 +8,56 @@ function Camera:new()
 	cam.aspect_ratio = love.graphics.getWidth()/love.graphics.getHeight()
 	cam.shader       = require(G3D_PATH .. "/g3d_shader")
 	cam.fov          = math.pi/3
-	cam.near_clip    = 0.01
+	cam.near_clip    = .01
 	cam.far_clip     = 1000
+	cam.down         = {0, -1, 0} -- 1: flip camera
 	cam.sensitivity  = 1/300
 	cam.speed        = 20
 	cam.x            = 0
 	cam.y            = 0
 	cam.z            = 0
-	cam.tx           = 0          -- target
-	cam.ty           = 0          -- target
-	cam.tz           = 0          -- target
-	cam.down         = {0, -1, 0} -- 1: flip camera
+	cam.tx           = 0
+	cam.ty           = 0
+	cam.tz           = 1
 	cam.dir          = 0
 	cam.pitch        = 0
 
 	cam:update_projection_matrix('projection')
-	cam:look_in_dir()
+	cam:update_view_matrix()
 
 	return cam
 end
 
--- give the camera a point to look from and a point to look towards
-function Camera:look_at(x, y, z, tx, ty, tz)
-	self.x  = x  or self.x
-	self.y  = y  or self.y
-	self.z  = z  or self.z
-	self.tx = tx or self.tx
-	self.ty = ty or self.ty
-	self.tz = ty or self.ty
+function Camera:move(x, y, z)
+	if type(x) == 'table' then 
+		self.x, self.y, self.z = x[1] or self.x, x[2] or self.y, x[3] or self.z
+	else
+		self.x, self.y, self.z = x or self.x, y or self.y, z or self.z
+	end
 
-	-- TODO: update self.fps's dir and pitch here
-
-	-- update the camera in the shader
 	self:update_view_matrix()
 end
 
--- move and rotate the camera, given a point and a dir and a pitch (vertical dir)
-function Camera:look_in_dir(x, y, z, dir, pitch)
-	self.x      = x     or self.x
-	self.y      = y     or self.y
-	self.z      = z     or self.z
+function Camera:look_at(tx, ty, tz)
+	if type(tx) == 'table' then 
+		self.tx, self.ty, self.tz = tx[1] or self.tx, tx[2] or self.ty, tx[3] or self.tz
+	else
+		self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
+	end
+
+	self.dir = -math.atan2(self.tz - self.z, self.tx - self.x) + math.pi/2
+	self.pitch = -math.atan2(self.ty - self.y, self.tx - self.x)
+
+	self:update_view_matrix()
+end
+
+function Camera:look_in_dir(dir, pitch)
 	self.dir    = dir   or self.dir
 	self.pitch  = pitch or self.pitch
 
-	-- convert the dir and pitch into a target point
-	local sign = math.cos(self.pitch)
-	if     sign > 0 then sign =  1
-	elseif sign < 0 then sign = -1
-	else                 sign =  0 end
+	local sign = 0 
+	if     math.cos(self.pitch) > 0 then sign =  1
+	elseif math.cos(self.pitch) < 0 then sign = -1 end
 	
 	local cos_pitch = sign * math.max(math.abs(math.cos(self.pitch)), .001)
 	self.tx = self.x + math.sin(self.dir) * cos_pitch
@@ -113,10 +115,10 @@ function Camera:first_person_movement(dt, direction)
 	self:look_in_dir()
 end
 
-function Camera:mousemoved(dx,dy)
-	self.dir    = self.dir + dx * self.sensitivity
-	self.pitch  = math.max(math.min(self.pitch + dy * self.sensitivity, math.pi * .5), math.pi * -.5)
-	self:look_in_dir()
+function Camera:mousemoved(dx, dy)
+	local dir   = self.dir + dx * self.sensitivity
+	local pitch = math.max(math.min(self.pitch + dy * self.sensitivity, math.pi * .5), math.pi * -.5)
+	self:look_in_dir(dir, pitch)
 end
 
 return Camera:new()

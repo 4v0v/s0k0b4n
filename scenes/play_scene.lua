@@ -12,17 +12,21 @@ function Play_scene:new(id)
 	@.canvas = lg.newCanvas()
 
 
-	@.grid = Grid(19, 10, { 
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		1, _, 1, _, 1, 1, 1, _, 1, _, _, _, 1, _, _, _, 1, 1, 1,
-		1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
-		1, 1, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
-		1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1,
-		1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+	@.grid = Grid(21, 14, { 
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, 1, _, 1, _, 1, 1, 1, _, 1, _, _, _, 1, _, _, _, 1, 1, 1, _,
+		_, 1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, 1, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+		_, 1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, _, _, _, 1, 1, _, _,
+		_, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, _, 1, _, 1, _, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, 1, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, _, _, 1, _, 1, _,
+		_, 1, _, 1, _, 1, 1, 1, _, 1, _, 1, _, 1, 1, 1, _, 1, 1, _, _,
+		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
 	})
 	@.cubes = {}
 
@@ -62,7 +66,16 @@ function Play_scene:update(dt)
 	if down('lctrl')    then g3d.Camera:first_person_movement(dt, 'down')     end
 	if down('z')        then g3d.Camera:first_person_movement(dt, 'forward')  end
 	if down('s')        then g3d.Camera:first_person_movement(dt, 'backward') end
-	if down('g')        then g3d.Camera:look_at(0, 0, 0, 1, 0, 0) end
+	if pressed('g')        then 
+		g3d.Camera:look_at(@.magica:position())
+	end
+	if pressed('h')        then 
+		-- g3d.Camera:look_in_dir(0, 0, 0, 1.32, -0.24)
+	end
+
+	g3d.Camera:look_at(@.moon:position())
+
+
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end
@@ -108,7 +121,10 @@ function Play_scene:draw_outside_camera_fg()
 	lg.print(
 		'x     = ' .. rounded(g3d.Camera.x    , 2) .. '\n' ..
 		'y     = ' .. rounded(g3d.Camera.y    , 2) .. '\n' ..
-		'z     = ' .. rounded(g3d.Camera.z    , 2) .. '\n' ..
+		'z     = ' .. rounded(g3d.Camera.z    , 2) .. '\n\n' ..
+		'tx    = ' .. rounded(g3d.Camera.tx   , 2) .. '\n' ..
+		'ty    = ' .. rounded(g3d.Camera.ty   , 2) .. '\n' ..
+		'tz    = ' .. rounded(g3d.Camera.tz   , 2) .. '\n\n' ..
 		'dir   = ' .. rounded(g3d.Camera.dir  , 2) .. '\n' ..
 		'pitch = ' .. rounded(g3d.Camera.pitch, 2)
 	)

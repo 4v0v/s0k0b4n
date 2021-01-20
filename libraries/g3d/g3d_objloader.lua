@@ -1,14 +1,4 @@
-local function concatTables(t1,t2,t3)
-	local tbl = {}
-	for _, v in ipairs(t1) do table.insert(tbl, v) end
-	for _, v in ipairs(t2) do table.insert(tbl, v) end
-	for _, v in ipairs(t3) do table.insert(tbl, v) end
-	return tbl
-end
-
--- give path of file
--- returns a lua table representation
-local function obj_loader(path)
+return function(path)
 	local verts   = {}
 	local faces   = {}
 	local uvs     = {}
@@ -20,8 +10,8 @@ local function obj_loader(path)
 		for word in line:gmatch('([^'..'%s'..']+)') do table.insert(words, word) end
 
 		if words[1] == 'v'  then table.insert(verts, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}) end
-		if words[1] == 'vt' then table.insert(uvs, {tonumber(words[2]), tonumber(words[3])}) end
 		if words[1] == 'vn' then table.insert(normals, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])}) end
+		if words[1] == 'vt' then table.insert(uvs, {tonumber(words[2]), tonumber(words[3])}) end
 
 		-- if the first word in this line is a 'f', then this is a face
 		-- a face takes three arguments which refer to points, each of those points take three arguments
@@ -33,9 +23,9 @@ local function obj_loader(path)
 			assert(#words == 4, 'Faces in '..path..' must be triangulated before they can be used in g3d!')
 
 			for i=2, #words do
-				local num = ''
+				local num  = ''
 				local word = words[i]
-				local ii = 1
+				local ii   = 1
 				local char = word:sub(ii,ii)
 
 				while true do
@@ -68,15 +58,21 @@ local function obj_loader(path)
 		end
 	end
 
+	local concat = function(t1,t2,t3)
+		local tbl = {}
+		for _, v in ipairs(t1) do table.insert(tbl, v) end
+		for _, v in ipairs(t2) do table.insert(tbl, v) end
+		for _, v in ipairs(t3) do table.insert(tbl, v) end
+		return tbl
+	end
     -- put it all together in the right order
 	local compiled = {}
+
 	for i,face in pairs(faces) do
-		compiled[#compiled +1] = concatTables(verts[face[1]], uvs[face[2]], normals[face[3]])
-		compiled[#compiled +1] = concatTables(verts[face[4]], uvs[face[5]], normals[face[6]])
-		compiled[#compiled +1] = concatTables(verts[face[7]], uvs[face[8]], normals[face[9]])
+		table.insert(compiled, concat(verts[face[1]], uvs[face[2]], normals[face[3]]))
+		table.insert(compiled, concat(verts[face[4]], uvs[face[5]], normals[face[6]]))
+		table.insert(compiled, concat(verts[face[7]], uvs[face[8]], normals[face[9]]))
 	end
 
 	return compiled
 end
-
-return obj_loader
