@@ -5,12 +5,11 @@ function Play_scene:new(id)
 
 	@.earth  = g3d.Model('assets/obj/sphere.obj', 'assets/images/earth.png' , {0, 0, 4}, _, { 1,  1,  1})
 	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {5, 0, 4}, _, {.5, .5, .5})
+	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {100, 2, 1}, _, {10, 10, 10})
 	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 0}, _, {.5, .5, .5})
 	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {5, 0, 0}, _, {.5, .5, .5})
 	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 0}, _, {.5, .5, .5})
-	@.magica = g3d.Model('assets/obj/magica_voxel.obj', 'assets/images/magica_voxel.png', {8, 2, 1}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
-
 
 	@.grid = Grid(21, 14, { 
 		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
@@ -67,13 +66,11 @@ function Play_scene:update(dt)
 	if down('z')        then g3d.Camera:first_person_movement(dt, 'forward')  end
 	if down('s')        then g3d.Camera:first_person_movement(dt, 'backward') end
 	if pressed('g')        then 
-		g3d.Camera:look_at(@.magica:position())
+		g3d.Camera:look_at(@.moon:position())
 	end
 	if pressed('h')        then 
-		-- g3d.Camera:look_in_dir(0, 0, 0, 1.32, -0.24)
+		-- g3d.Camera:look_in_dir(1.32, -0.24)
 	end
-
-	g3d.Camera:look_at(@.moon:position())
 
 
 	if pressed('left')  then @.cube2:move_x(-1) end

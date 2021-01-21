@@ -6,7 +6,7 @@ function Camera:new()
 	local cam = setmetatable({}, {__index = Camera})
 
 	cam.aspect_ratio = love.graphics.getWidth()/love.graphics.getHeight()
-	cam.shader       = require(G3D_PATH .. "/g3d_shader")
+	cam.shader       = require(G3D_PATH .. "/g3d_shaderloader")
 	cam.fov          = math.pi/3
 	cam.near_clip    = .01
 	cam.far_clip     = 1000

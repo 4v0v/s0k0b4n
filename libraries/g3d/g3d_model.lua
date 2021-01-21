@@ -10,7 +10,7 @@ Model.vertexFormat = {
 	{"VertexNormal"  , "float", 3},
 	{"VertexColor"   , "byte" , 4},
 }
-Model.shader = require(G3D_PATH .. "/g3d_shader")
+Model.shader = require(G3D_PATH .. "/g3d_shaderloader")
 
 function Model:new(given, texture, pos, rot, sca)
 	local model = setmetatable({}, {__index = Model})
