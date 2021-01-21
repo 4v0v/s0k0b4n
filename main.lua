@@ -43,7 +43,7 @@ function love.run()
 		game:add_scene('menu', Menu_scene())
 		game:add_scene('play', Play_scene())
 
-		game:change_scene('menu')
+		game:change_scene('play')
 	end
 
 	function love.update(dt)

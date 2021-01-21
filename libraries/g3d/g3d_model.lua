@@ -12,6 +12,9 @@ Model.vertexFormat = {
 }
 Model.shader = require(G3D_PATH .. "/g3d_shaderloader")
 
+
+
+
 function Model:new(given, texture, pos, rot, sca)
 	local model = setmetatable({}, {__index = Model})
 
@@ -76,6 +79,18 @@ function Model:make_normals(flipped)
 	end
 end
 
+function Model:position() 
+	return {self.x, self.y, self.z} 
+end
+
+function Model:get_rotation() 
+	return {self.rx, self.ry, self.rz} 
+end
+
+function Model:get_scale() 
+	return {self.sx, self.sy, self.sz} 
+end
+
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.x  = x  or self.x 
 	self.y  = y  or self.y 
@@ -90,35 +105,52 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self:update_matrix()
 end
 
-function Model:position() return {self.x, self.y, self.z} end
-function Model:get_position() return {self.x, self.y, self.z} end
-function Model:get_rotation() return {self.rx, self.ry, self.rz} end
-function Model:get_scale() return {self.sx, self.sy, self.sz} end
+function Model:look_at(tx, ty, tz) -- TODO
 
-function Model:set_position(x, y, z) self:transform(x, y, z) end
-function Model:set_rotation(rx, ry, rz) self:transform(_, _, _, rx, ry, rz) end
-function Model:set_scale(sx, sy, sz) self:transform(_, _, _, _, _, _, sx, sy, sz) end
+end
 
-function Model:set_x(x) self:set_position(x, _, _) end
-function Model:set_y(y) self:set_position(_, y, _) end
-function Model:set_z(z) self:set_position(_, _, z) end
-function Model:set_rx(rx) self:set_rotation(rx, _, _) end
-function Model:set_ry(ry) self:set_rotation(_, ry, _) end
-function Model:set_rz(rz) self:set_rotation(_, _, rz) end
-function Model:set_s(s) self:set_scale(s, s, s) end
-function Model:set_sx(sx) self:set_scale(sx, _, _) end
-function Model:set_sy(sy) self:set_scale(_, sy, _) end
-function Model:set_sz(sz) self:set_scale(_, _, sz) end
+function Model:look_in_dir(yaw, pitch) -- TODO
 
-function Model:move_x(x) self:set_position(self.x + x, _, _) end
-function Model:move_y(y) self:set_position(_, self.y + y, _) end
-function Model:move_z(z) self:set_position(_, _, self.z + z) end
-function Model:rotate_x(rx) self:set_rotation(self.rx + rx, _, _) end
-function Model:rotate_y(ry) self:set_rotation(_, self.ry + ry, _) end
-function Model:rotate_z(rz) self:set_rotation(_, _, self.rz + rz) end
-function Model:scale(s) self:set_scale(self.sx + s, self.sy + s, self.sz + s) end
-function Model:scale_x(sx) self:set_scale(self.sx + sx, _, _) end
-function Model:scale_y(sy) self:set_scale(_, sy + sy, _) end
-function Model:scale_z(sz) self:set_scale(_, _, sz + sz) end
+end
+
+function Model:move(...)
+	local args = {...}
+	local x, y, z 
+	if type(args[1]) == 'table' then 
+		x, y, z = args[1][1], args[1][2], args[1][3]
+	else
+		x, y, z = args[1], args[2], args[3]
+	end
+
+	self:transform(x, y, z) 
+end
+
+function Model:rotate(...)
+	local args = {...}
+	local rx, ry, rz 
+	if type(args[1]) == 'table' then 
+		rx, ry, rz = args[1][1], args[1][2], args[1][3]
+	else
+		rx, ry, rz = args[1], args[2], args[3]
+	end 
+
+	self:transform(_, _, _, rx, ry, rz) 
+end
+
+function Model:scale(...)
+	local args = {...}
+	local sx, sy, sz 
+	if type(args[1]) == 'table' then 
+		sx, sy, sz = args[1][1], args[1][2], args[1][3]
+	else
+		sx, sy, sz = args[1], args[2], args[3]
+	end
+
+	self:transform(_, _, _, _, _, _, sx, sy, sz) 
+end
+
+function Model:scale_all(s)
+	self:transform(_, _, _, _, _, _, s, s, s) 
+end
 
 return setmetatable({}, {__call = Model.new})

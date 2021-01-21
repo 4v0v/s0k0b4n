@@ -156,6 +156,7 @@ function print(t)
 end
 
 function rounded(number, n)
+	n = n or 2
 	return tonumber(string.format("%." ..n .."f", number))
 end
 

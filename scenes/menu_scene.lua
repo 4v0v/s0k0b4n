@@ -43,7 +43,3 @@ function Menu_scene:update(dt)
 		if @.timer:remove('is_inside_quit') then quit_btn.scale_spring:change(1) end
 	end
 end
-
-function Menu_scene:draw_outside_camera_fg()
-	lg.rectangle('fill', 200, 200, @.z:get(), 100)
-end

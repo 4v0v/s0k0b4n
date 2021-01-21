@@ -3,12 +3,12 @@ Play_scene = Scene:extend('Play_scene')
 function Play_scene:new(id)
 	Play_scene.super.new(@, id)
 
-	@.earth  = g3d.Model('assets/obj/sphere.obj', 'assets/images/earth.png' , {0, 0, 4}, _, { 1,  1,  1})
-	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {5, 0, 4}, _, {.5, .5, .5})
-	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {100, 2, 1}, _, {10, 10, 10})
-	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 0}, _, {.5, .5, .5})
-	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {5, 0, 0}, _, {.5, .5, .5})
-	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 0}, _, {.5, .5, .5})
+	@.earth  = g3d.Model('assets/obj/sphere.obj', _ , {5, 5, 0}, _, { .3,  .3,  .3})
+	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-40, -6, 15}, _, {.5, .5, .5})
+	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {100, 2, -100}, _, {10, 10, 10})
+	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 8}, _, {.5, .5, .5})
+	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {5, 0, 8}, _, {.5, .5, .5})
+	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 8}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
 
 	@.grid = Grid(21, 14, { 
@@ -59,19 +59,18 @@ function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
 	if pressed('escape') then game:change_scene_with_transition('menu') end
-	if down('q')        then g3d.Camera:first_person_movement(dt, 'left')     end
-	if down('d')        then g3d.Camera:first_person_movement(dt, 'right')    end
-	if down('lshift') || down('space') then g3d.Camera:first_person_movement(dt, 'up') end
-	if down('lctrl')    then g3d.Camera:first_person_movement(dt, 'down')     end
-	if down('z')        then g3d.Camera:first_person_movement(dt, 'forward')  end
-	if down('s')        then g3d.Camera:first_person_movement(dt, 'backward') end
+	if down('q')      then g3d.Camera:first_person_movement(dt, 'left_relative')     end
+	if down('d')      then g3d.Camera:first_person_movement(dt, 'right_relative')    end
+	if down('lshift') then g3d.Camera:first_person_movement(dt, 'up') end
+	if down('lctrl')  then g3d.Camera:first_person_movement(dt, 'down')     end
+	if down('z')      then g3d.Camera:first_person_movement(dt, 'forward_relative')  end
+	if down('s')      then g3d.Camera:first_person_movement(dt, 'backward_relative') end
 	if pressed('g')        then 
-		g3d.Camera:look_at(@.moon:position())
+		g3d.Camera:look_at(@.earth:position())
 	end
 	if pressed('h')        then 
-		-- g3d.Camera:look_in_dir(1.32, -0.24)
+		g3d.Camera:look_in_dir(math.pi/2, -math.pi/4)
 	end
-
 
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
@@ -79,10 +78,10 @@ function Play_scene:update(dt)
 	if pressed('down')  then @.cube2:move_y(-1) end
 
 	@.t += dt
-	@.moon:set_position(math.cos(@.t)*5, 0, math.sin(@.t)*5 +4)
-	@.moon:set_ry(@.t)
+	@.moon:move(math.cos(@.t)*5 + 50, 0, math.sin(@.t)*5 +4)
+	@.moon:rotate(_,@.t,_)
 
-	@.cube:set_y(@.pos)
+	@.cube:move(_,@.pos,_)
 end
 
 function Play_scene:draw_outside_camera_fg()
@@ -122,7 +121,7 @@ function Play_scene:draw_outside_camera_fg()
 		'tx    = ' .. rounded(g3d.Camera.tx   , 2) .. '\n' ..
 		'ty    = ' .. rounded(g3d.Camera.ty   , 2) .. '\n' ..
 		'tz    = ' .. rounded(g3d.Camera.tz   , 2) .. '\n\n' ..
-		'dir   = ' .. rounded(g3d.Camera.dir  , 2) .. '\n' ..
+		'yaw   = ' .. rounded(g3d.Camera.yaw  , 2) .. '\n' ..
 		'pitch = ' .. rounded(g3d.Camera.pitch, 2)
 	)
 
