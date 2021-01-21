@@ -1,21 +1,22 @@
-uniform mat4 projectionMatrix;
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
+uniform mat4 projection_matrix;
+uniform mat4 model_matrix;
+uniform mat4 view_matrix;
 
-varying vec4 vertexColor;
+varying vec4 vertex_color;
 
 #ifdef VERTEX
 vec4 position(mat4 transform_projection, vec4 vertex_position)
 {
-	vertexColor = VertexColor;
-	return projectionMatrix * viewMatrix * modelMatrix * vertex_position;
+	vertex_color = VertexColor;
+	return projection_matrix * view_matrix * model_matrix * vertex_position;
 }
 #endif
 
 #ifdef PIXEL
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
 {
-	vec4 texturecolor = Texel(tex, texture_coords);
-	return texturecolor * color;
+	vec4 texture_color = Texel(tex, texture_coords);
+	if (texture_color.a == 0.0) { discard; }
+	return vec4(texture_color) * color * vertex_color;
 }
 #endif

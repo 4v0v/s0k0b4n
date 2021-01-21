@@ -11,7 +11,7 @@ function Camera:new()
 	cam.near_clip    = .01
 	cam.far_clip     = 1000
 	cam.down         = {0, -1, 0} -- 1: flip camera
-	cam.sensitivity  = 1/300
+	cam.sensitivity  = .003
 	cam.speed        = 20
 	cam.x            = 0
 	cam.y            = 0
@@ -45,7 +45,7 @@ function Camera:look_at(tx, ty, tz)
 		self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
 	end
 
-	self.dir = -math.atan2(self.tz - self.z, self.tx - self.x) + math.pi/2
+	self.dir   = -math.atan2(self.tz - self.z, self.tx - self.x) + math.pi/2
 	self.pitch = -math.atan2(self.ty - self.y, self.tx - self.x)
 
 	self:update_view_matrix()
@@ -68,15 +68,17 @@ function Camera:look_in_dir(dir, pitch)
 end
 
 function Camera:update_view_matrix(shader)
-	(shader or self.shader):send('viewMatrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+	(shader or self.shader):send('view_matrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
 end
 
 function Camera:update_projection_matrix(type, shader)
+	local matrix
 	if     type == 'projection'   then
-		(shader or self.shader):send('projectionMatrix', Matrices.get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio))
+		matrix = Matrices.get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio)
 	elseif type == 'orthographic' then
-		(shader or self.shader):send('projectionMatrix', Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio))
+		matrix = Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
 	end
+	(shader or self.shader):send('projection_matrix', matrix)
 end
 
 function Camera:first_person_movement(dt, direction)

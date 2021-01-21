@@ -48,7 +48,7 @@ end
 
 function Model:draw()
 	love.graphics.setShader(self.shader)
-	self.shader:send("modelMatrix", self.matrix)
+	self.shader:send("model_matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
 end
