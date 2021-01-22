@@ -76,18 +76,6 @@ function Model:make_normals(flipped)
 	end
 end
 
-function Model:position() 
-	return {self.x, self.y, self.z} 
-end
-
-function Model:get_rotation() 
-	return {self.rx, self.ry, self.rz} 
-end
-
-function Model:get_scale() 
-	return {self.sx, self.sy, self.sz} 
-end
-
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.x  = x  or self.x 
 	self.y  = y  or self.y 
@@ -102,44 +90,44 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self:update_matrix()
 end
 
-function Model:move(...)
-	local args = {...}
-	local x, y, z 
-	if type(args[1]) == 'table' then 
-		x, y, z = args[1][1], args[1][2], args[1][3]
+function Model:move(x, y, z)
+	if type(x) == 'table' then
+		self:transform(x[1], x[2], x[3])
 	else
-		x, y, z = args[1], args[2], args[3]
+		self:transform(x, y, z)
 	end
-
-	self:transform(x, y, z) 
 end
 
-function Model:rotate(...)
-	local args = {...}
-	local rx, ry, rz 
-	if type(args[1]) == 'table' then 
-		rx, ry, rz = args[1][1], args[1][2], args[1][3]
+function Model:rotate(rx, ry, rz)
+	if type(rx) == 'table' then
+		self:transform(rx[1], rx[2], rx[3])
 	else
-		rx, ry, rz = args[1], args[2], args[3]
-	end 
-
-	self:transform(_, _, _, rx, ry, rz) 
+		self:transform(_, _, _, rx, ry, rz)
+	end
 end
 
-function Model:scale(...)
-	local args = {...}
-	local sx, sy, sz 
-	if type(args[1]) == 'table' then 
-		sx, sy, sz = args[1][1], args[1][2], args[1][3]
+function Model:scale(sx, sy, sz)
+	if type(sx) == 'table' then
+		self:transform(sx[1], sx[2], sx[3])
 	else
-		sx, sy, sz = args[1], args[2], args[3]
+		self:transform(_, _, _, _, _, _, sx, sy, sz) 
 	end
-
-	self:transform(_, _, _, _, _, _, sx, sy, sz) 
 end
 
 function Model:scale_all(s)
 	self:transform(_, _, _, _, _, _, s, s, s) 
+end
+
+function Model:position() 
+	return {self.x, self.y, self.z} 
+end
+
+function Model:get_rotation() 
+	return {self.rx, self.ry, self.rz} 
+end
+
+function Model:get_scale() 
+	return {self.sx, self.sy, self.sz} 
 end
 
 return setmetatable({}, {__call = Model.new})

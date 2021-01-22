@@ -60,24 +60,19 @@ function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
 	if pressed('escape') then game:change_scene_with_transition('menu') end
-	if down('q')      then g3d.Camera:first_person_movement(dt, 'left_relative')     end
-	if down('d')      then g3d.Camera:first_person_movement(dt, 'right_relative')    end
-	if down('lshift') then g3d.Camera:first_person_movement(dt, 'up') end
-	if down('lctrl')  then g3d.Camera:first_person_movement(dt, 'down')     end
-	if down('z')      then g3d.Camera:first_person_movement(dt, 'forward_relative')  end
-	if down('s')      then g3d.Camera:first_person_movement(dt, 'backward_relative') end
-	if pressed('g')        then 
-		g3d.Camera:look_at(@.earth:position())
-	end
-	if pressed('h')        then 
-		g3d.Camera:look_in_dir(math.pi/2, -math.pi/4)
-	end
+	if down('q')      then g3d.Camera:update(dt, 'left')     end
+	if down('d')      then g3d.Camera:update(dt, 'right')    end
+	if down('lshift') then g3d.Camera:update(dt, 'up')       end
+	if down('lctrl')  then g3d.Camera:update(dt, 'down')     end
+	if down('z')      then g3d.Camera:update(dt, 'toward')   end
+	if down('s')      then g3d.Camera:update(dt, 'back') end
 
 	if pressed('left')  then @.cube2:move_x(-1) end
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end
 	if pressed('down')  then @.cube2:move_y(-1) end
 
+	-- g3d.Camera:look_at(@.earth:position())
 
 	@.moon:rotate(_,@.moon.ry + dt,_)
 	@.cube1:rotate(@.cube1.rx+ 2*dt, _, _)

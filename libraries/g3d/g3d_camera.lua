@@ -2,6 +2,12 @@ local Matrices = require(G3D_PATH .. '/g3d_matrices')
 
 local Camera = {}
 
+local function sign(x)
+	if     x > 0 then return  1 
+	elseif x < 0 then return -1 
+	else              return  0 end 
+end
+
 function Camera:new()
 	local cam = setmetatable({}, {__index = Camera})
 
@@ -26,6 +32,56 @@ function Camera:new()
 	cam:update_view_matrix()
 
 	return cam
+end
+
+function Camera:update(dt, dir)
+	local speed = self.speed * dt
+	local dx = 0
+	local dy = 0
+	local dir_t = 0
+
+	if     dir == 'right_abs' then self.x = self.x + speed
+	elseif dir == 'left_abs'  then self.x = self.x - speed
+	elseif dir == 'forth_abs' then self.z = self.z + speed
+	elseif dir == 'back_abs'  then self.z = self.z - speed
+	elseif dir == 'up'        then self.y = self.y + speed
+	elseif dir == 'down'      then self.y = self.y - speed
+	elseif dir == 'left'      then dx    = -1
+	elseif dir == 'right'     then dx    =  1
+	elseif dir == 'forth'     then dy    = -1
+	elseif dir == 'back'      then dy    =  1		
+	elseif dir == 'away_from' then dir_t = -1
+	elseif dir == 'toward'    then dir_t =  1 end
+
+	-- move relative to camera's direction
+	if dx ~= 0 or dy ~= 0 then
+		local angle = math.atan2(dy, dx)
+		local dir_x = math.cos(self.yaw + angle)           
+		local dir_z = math.sin(self.yaw + angle + math.pi) 
+
+		self.x = self.x + speed * dir_x
+		self.z = self.z + speed * dir_z
+	end
+
+	-- move toward / away from the camera's target
+	if dir_t ~= 0 then 
+		local cos_pitch = sign(math.cos(self.pitch)) * math.max(math.abs(math.cos(self.pitch)), .001)
+		local tx = math.sin(self.yaw) * cos_pitch
+		local ty = -math.sin(self.pitch)
+		local tz = math.cos(self.yaw) * cos_pitch
+
+		self.x = self.x + tx * speed * dir_t
+		self.y = self.y + ty * speed * dir_t
+		self.z = self.z + tz * speed * dir_t
+	end
+	
+	self:look_in_dir()
+end
+
+function Camera:mousemoved(dx, dy)
+	local dir   = self.yaw + dx * self.sensitivity
+	local pitch = math.max(math.min(self.pitch + dy * self.sensitivity, math.pi/2), -math.pi/2)
+	self:look_in_dir(dir, pitch)
 end
 
 function Camera:position()
@@ -64,11 +120,7 @@ function Camera:look_in_dir(yaw, pitch)
 	self.yaw   = yaw   or self.yaw
 	self.pitch = pitch or self.pitch
 
-	local sign = 0 
-	if     math.cos(self.pitch) > 0 then sign =  1
-	elseif math.cos(self.pitch) < 0 then sign = -1 end
-	
-	local cos_pitch = sign * math.max(math.abs(math.cos(self.pitch)), .001)
+	local cos_pitch = sign(math.cos(self.pitch)) * math.max(math.abs(math.cos(self.pitch)), .001)
 	self.tx = self.x + math.sin(self.yaw) * cos_pitch
 	self.ty = self.y - math.sin(self.pitch)
 	self.tz = self.z + math.cos(self.yaw) * cos_pitch
@@ -88,55 +140,6 @@ function Camera:update_projection_matrix(type, shader)
 		matrix = Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
 	end
 	(shader or self.shader):send('projection_matrix', matrix)
-end
-
-function Camera:first_person_movement(dt, dir)
-	local dx = 0
-	local dy = 0
-
-	if     dir == 'left'     then 
-		self.x = self.x - self.speed * dt
-	elseif dir == 'right'    then 
-		self.x = self.x + self.speed * dt
-	elseif dir == 'forward'  then 
-		self.z = self.z + self.speed * dt
-	elseif dir == 'backward' then 
-		self.z = self.z - self.speed * dt
-	elseif dir == 'down'     then 
-		self.y = self.y - self.speed * dt
-	elseif dir == 'up'       then 
-		self.y = self.y + self.speed * dt
-
-	elseif dir == 'left_relative'     then 
-		dx = dx - 1
-	elseif dir == 'right_relative'    then 
-		dx = dx + 1
-	elseif dir == 'forward_relative'  then 
-		dy = dy - 1
-	elseif dir == 'backward_relative' then 
-		dy = dy + 1
-	end
-	-- TODO: elseif direction == 'forward_follow_pitch'  then 
-	-- TODO: elseif direction == 'backward_follow_pitch' then 
-
-	-- do some trigonometry on the inputs to make movement relative to camera's dir
-	-- also to make the player not move faster in diagonal dirs
-	if dx ~= 0 or dy ~= 0 then
-		local angle = math.atan2(dy, dx)
-		local dir_x = math.cos(self.yaw + angle)           * self.speed * dt
-		local dir_z = math.sin(self.yaw + angle + math.pi) * self.speed * dt
-
-		self.x = self.x + dir_x
-		self.z = self.z + dir_z
-	end
-	
-	self:look_in_dir()
-end
-
-function Camera:mousemoved(dx, dy)
-	local dir   = self.yaw + dx * self.sensitivity
-	local pitch = math.max(math.min(self.pitch + dy * self.sensitivity, math.pi/2), -math.pi/2)
-	self:look_in_dir(dir, pitch)
 end
 
 return Camera:new()
