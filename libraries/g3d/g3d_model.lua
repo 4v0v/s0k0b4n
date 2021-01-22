@@ -12,9 +12,6 @@ Model.vertexFormat = {
 }
 Model.shader = require(G3D_PATH .. "/g3d_shaderloader")
 
-
-
-
 function Model:new(given, texture, pos, rot, sca)
 	local model = setmetatable({}, {__index = Model})
 
@@ -44,7 +41,7 @@ end
 function Model:update_matrix()
 	self.matrix = Matrices.get_transformation(
 		self.x , self.y , self.z ,
-		self.rz, self.ry, self.rz,
+		self.rx, self.ry, self.rz,
 		self.sx, self.sy, self.sz
 	)
 end
@@ -103,14 +100,6 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.sz = sz or self.sz
 
 	self:update_matrix()
-end
-
-function Model:look_at(tx, ty, tz) -- TODO
-
-end
-
-function Model:look_in_dir(yaw, pitch) -- TODO
-
 end
 
 function Model:move(...)

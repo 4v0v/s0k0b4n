@@ -4,11 +4,14 @@ function Play_scene:new(id)
 	Play_scene.super.new(@, id)
 
 	@.earth  = g3d.Model('assets/obj/sphere.obj', _ , {5, 5, 0}, _, { .3,  .3,  .3})
-	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-40, -6, 15}, _, {.5, .5, .5})
-	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {100, 2, -100}, _, {10, 10, 10})
-	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 8}, _, {.5, .5, .5})
-	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {5, 0, 8}, _, {.5, .5, .5})
-	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 8}, _, {.5, .5, .5})
+	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-1, -6, 15}, _, {.5, .5, .5})
+	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {25, 5, 5}, _, {1, 1, 1})
+	@.eye   = g3d.Model('assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
+
+	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {2, 5,10}, _, {.5, .5, .5})
+	@.cube1  = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 8}, _, {.5, .5, .5})
+	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 8}, _, {.5, .5, .5})
+	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {8, 0, 8}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
 
 	@.grid = Grid(21, 14, { 
@@ -38,12 +41,10 @@ function Play_scene:new(id)
 		})
 	end)
 
-	@.t = 0
-	@.pos = 1
-	@:every_immediate(2, fn() 
-		@:tween(1, @, {pos = 4}, 'in-out-cubic', _ , fn() 
-			@:tween(1, @, {pos = 1}, 'in-out-cubic')
-		end)
+	@.cube_tween = Tween(1, 'in-out-cubic')
+	@:every_immediate(2, fn()
+		@.cube_tween:tween(4, 1)
+		@:after(1, fn() @.cube_tween:tween(1, 1) end)
 	end)
 end
 
@@ -77,11 +78,13 @@ function Play_scene:update(dt)
 	if pressed('up')    then @.cube2:move_y(1)  end
 	if pressed('down')  then @.cube2:move_y(-1) end
 
-	@.t += dt
-	@.moon:move(math.cos(@.t)*5 + 50, 0, math.sin(@.t)*5 +4)
-	@.moon:rotate(_,@.t,_)
 
-	@.cube:move(_,@.pos,_)
+	@.moon:rotate(_,@.moon.ry + dt,_)
+	@.cube1:rotate(@.cube1.rx+ 2*dt, _, _)
+	@.cube2:rotate(_, @.cube2.ry+ 2*dt, _)
+	@.cube3:rotate(_, _, @.cube3.rz+ 2*dt)
+
+	@.cube:move(_,@.cube_tween:get(),_)
 end
 
 function Play_scene:draw_outside_camera_fg()
@@ -92,6 +95,7 @@ function Play_scene:draw_outside_camera_fg()
 
 		lg.setColor(1, 0, 0)
 		@.cube:draw()
+		@.cube1:draw()
 
 		lg.setColor(0, 1, 1)
 		@.cube2:draw()
@@ -101,6 +105,7 @@ function Play_scene:draw_outside_camera_fg()
 
 		lg.setColor(1, 1, 1)
 		@.magica:draw()
+		@.eye:draw()
 
 		ifor @.cubes do
 			if it.value == 1 then lg.setColor(1, 0, 1) end
