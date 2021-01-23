@@ -43,10 +43,10 @@ function Matrices.get_transformation(x, y, z, rx, ry, rz, sx, sy, sz)
 	return matrix
 end
 
-function Matrices.get_projection_matrix(fov, near, far, aspectRatio)
+function Matrices.get_projection_matrix(fov, near, far, aspect_ration)
 	local top    = near * tan(fov/2)
 	local bottom = -1   * top
-	local right  = top  * aspectRatio
+	local right  = top  * aspect_ration
 	local left   = -1   * right
 
 	return {
@@ -57,10 +57,10 @@ function Matrices.get_projection_matrix(fov, near, far, aspectRatio)
 	}
 end
 
-function Matrices.get_orthographic_matrix(fov, size, near, far, aspectRatio)
+function Matrices.get_orthographic_matrix(fov, size, near, far, aspect_ration)
 	local top    = size * tan(fov/2)
 	local bottom = -1   * top
-	local right  = top  * aspectRatio
+	local right  = top  * aspect_ration
 	local left   = -1   * right
 
 	return {

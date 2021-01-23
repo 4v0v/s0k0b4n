@@ -38,43 +38,12 @@ function Model:new(vertices, texture, pos, rot, sca)
 	return model
 end
 
-function Model:update_matrix()
-	self.matrix = Matrices.get_transformation(
-		self.x , self.y , self.z ,
-		self.rx, self.ry, self.rz,
-		self.sx, self.sy, self.sz
-	)
-end
-
 function Model:draw()
 	love.graphics.setShader(self.shader)
 	self.shader:send("model_matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
 end
-
--- function Model:make_normals(flipped)
--- 	for i=1, #self.vertices, 3 do
--- 		local vp = self.vertices[i]
--- 		local v  = self.vertices[i+1]
--- 		local vn = self.vertices[i+2]
-
--- 		local vec1    = {v[1]-vp[1], v[2]-vp[2], v[3]-vp[3]}
--- 		local vec2    = {vn[1]-v[1], vn[2]-v[2], vn[3]-v[3]}
--- 		local normal  = Vectors.normalize(Vectors.cross_product(vec1,vec2))
--- 		local flipped = flipped and -1 or 1
-
--- 		vp[6] = normal[1] * flipped
--- 		vp[7] = normal[2] * flipped
--- 		vp[8] = normal[3] * flipped
--- 		v[6]  = normal[1] * flipped
--- 		v[7]  = normal[2] * flipped
--- 		v[8]  = normal[3] * flipped
--- 		vn[6] = normal[1] * flipped
--- 		vn[7] = normal[2] * flipped
--- 		vn[8] = normal[3] * flipped
--- 	end
--- end
 
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.x  = x  or self.x 
@@ -88,6 +57,14 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.sz = sz or self.sz
 
 	self:update_matrix()
+end
+
+function Model:update_matrix()
+	self.matrix = Matrices.get_transformation(
+		self.x , self.y , self.z ,
+		self.rx, self.ry, self.rz,
+		self.sx, self.sy, self.sz
+	)
 end
 
 function Model:move(x, y, z)

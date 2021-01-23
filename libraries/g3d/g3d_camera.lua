@@ -1,13 +1,19 @@
 local Matrices = require(G3D_PATH .. '/g3d_matrices')
 local cos, sin, max, min, abs, atan2, sqrt = math.cos, math.sin, math.max, math.min, math.abs, math.atan2, math.sqrt
 
-local Camera = {}
-
-local function sign(x)
-	if     x > 0 then return  1 
-	elseif x < 0 then return -1 
-	else              return  0 end 
+local function sign(x) 
+	if x < 0 then return -1 else return 1 end 
 end
+
+local function not_zero(x) 
+	return sign(cos(x)) * max(abs(cos(x)), .001) 
+end
+
+local function unpack_params(p1, p2, p3) 
+	if type(p1) == 'table' then return p1[1], p1[2], p1[3] else return p1, p2, p3 end
+end
+
+local Camera = {}
 
 function Camera:new()
 	local cam = setmetatable({}, {__index = Camera})
@@ -37,24 +43,26 @@ end
 
 function Camera:update(dt, dir)
 	local speed = self.speed * dt
-	local dx = 0
-	local dy = 0
+	local dx    = 0
+	local dy    = 0
 	local dir_t = 0
 
+		-- move camera's absolute position
 	if     dir == 'right_abs' then self.x = self.x + speed
 	elseif dir == 'left_abs'  then self.x = self.x - speed
 	elseif dir == 'forth_abs' then self.z = self.z + speed
 	elseif dir == 'back_abs'  then self.z = self.z - speed
 	elseif dir == 'up'        then self.y = self.y + speed
 	elseif dir == 'down'      then self.y = self.y - speed
+		-- move camera relative to target
 	elseif dir == 'left'      then dx    = -1
 	elseif dir == 'right'     then dx    =  1
 	elseif dir == 'forth'     then dy    = -1
-	elseif dir == 'back'      then dy    =  1		
+	elseif dir == 'back'      then dy    =  1
+		-- move camera toward / away from its target		
 	elseif dir == 'away_from' then dir_t = -1
 	elseif dir == 'toward'    then dir_t =  1 end
 
-	-- move relative to camera's direction
 	if dx ~= 0 or dy ~= 0 then
 		local angle = atan2(dy, dx)
 		local dir_x = cos(self.yaw + angle)           
@@ -64,15 +72,14 @@ function Camera:update(dt, dir)
 		self.z = self.z + speed * dir_z
 	end
 
-	-- move toward / away from the camera's target
 	if dir_t ~= 0 then 
-		local cos_pitch = sign(cos(self.pitch)) * max(abs(cos(self.pitch)), .001)
+		local cos_pitch = not_zero(cos(self.pitch))
 		local tx = sin(self.yaw) * cos_pitch
-		local ty = -sin(self.pitch)
+		local ty = sin(self.pitch)
 		local tz = cos(self.yaw) * cos_pitch
 
 		self.x = self.x + tx * speed * dir_t
-		self.y = self.y + ty * speed * dir_t
+		self.y = self.y - ty * speed * dir_t
 		self.z = self.z + tz * speed * dir_t
 	end
 	
@@ -90,22 +97,16 @@ function Camera:position()
 end
 
 function Camera:move(x, y, z)
-	if type(x) == 'table' then 
-		self.x, self.y, self.z = x[1] or self.x, x[2] or self.y, x[3] or self.z
-	else
-		self.x, self.y, self.z = x or self.x, y or self.y, z or self.z
-	end
+	local x, y, z = unpack_params(x, y, z)
+	self.x, self.y, self.z = x or self.x, y or self.y, z or self.z
 
 	self:update_view_matrix()
 end
 
 function Camera:look_at(tx, ty, tz)
-	if type(tx) == 'table' then 
-		self.tx, self.ty, self.tz = tx[1] or self.tx, tx[2] or self.ty, tx[3] or self.tz
-	else
-		self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
-	end
-	self.tx = max(abs(self.tx), .001)
+	local tx, ty, tz = unpack_params(tx, ty, tz)
+	self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
+	self.tx = not_zero(self.tx)
 
 	local dx = self.tx - self.x
 	local dy = self.ty - self.y
@@ -121,7 +122,7 @@ function Camera:look_in_dir(yaw, pitch)
 	self.yaw   = yaw   or self.yaw
 	self.pitch = pitch or self.pitch
 
-	local cos_pitch = sign(cos(self.pitch)) * max(abs(cos(self.pitch)), .001)
+	local cos_pitch = not_zero(cos(self.pitch))
 	self.tx = self.x + sin(self.yaw) * cos_pitch
 	self.ty = self.y - sin(self.pitch)
 	self.tz = self.z + cos(self.yaw) * cos_pitch
@@ -129,18 +130,19 @@ function Camera:look_in_dir(yaw, pitch)
 	self:update_view_matrix()
 end
 
-function Camera:update_view_matrix(shader)
-	(shader or self.shader):send('view_matrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+function Camera:update_view_matrix(dt)
+	self.shader:send('view_matrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
 end
 
-function Camera:update_projection_matrix(type, shader)
+function Camera:update_projection_matrix(type)
 	local matrix
 	if     type == 'projection'   then
 		matrix = Matrices.get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio)
 	elseif type == 'orthographic' then
 		matrix = Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
 	end
-	(shader or self.shader):send('projection_matrix', matrix)
+
+	self.shader:send('projection_matrix', matrix)
 end
 
 return Camera:new()

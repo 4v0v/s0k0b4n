@@ -1,7 +1,12 @@
-local Camera = {}
+local function lerp(a, b, x, dt) 
+	return a + (b - a) * (1.0 - math.exp(-x * dt)) 
+end
 
-local function _smooth(a, b, x, dt) return a + (b - a) * (1.0 - math.exp(-x * dt)) end
-local function _rand(x) return love.math.noise(love.math.random()) - 0.5 end
+local function random(x) 
+	return love.math.noise(love.math.random()) - 0.5 
+end
+
+local Camera = {}
 
 function Camera:new(x, y, w, h, s)
 	local obj = {}
@@ -15,16 +20,16 @@ function Camera:new(x, y, w, h, s)
 end
 
 function Camera:update(dt)
-	self.cam.x = _smooth(self.cam.x, self.cam.target_x, self.cam.sv, dt)
-	self.cam.y = _smooth(self.cam.y, self.cam.target_y, self.cam.sv, dt)
-	self.cam.s = _smooth(self.cam.s, self.cam.target_s, self.cam.ssv, dt)
+	self.cam.x = lerp(self.cam.x, self.cam.target_x, self.cam.sv, dt)
+	self.cam.y = lerp(self.cam.y, self.cam.target_y, self.cam.sv, dt)
+	self.cam.s = lerp(self.cam.s, self.cam.target_s, self.cam.ssv, dt)
 
 	self.shk.timer = self.shk.timer + dt
 	if self.shk.timer > self.shk.tick then 
-		if self.shk.s ~= 0 then self.shk.xrs, self.shk.yrs = _rand()*self.shk.s, _rand()*self.shk.s else self.shk.xrs, self.shk.yrs = 0, 0 end
+		if self.shk.s ~= 0 then self.shk.xrs, self.shk.yrs = random()*self.shk.s, random()*self.shk.s else self.shk.xrs, self.shk.yrs = 0, 0 end
 		self.shk.timer = self.shk.timer - self.shk.tick
 	end
-	if math.abs(self.shk.s) > 5 then self.shk.s = _smooth(self.shk.s, 0, 5, dt) else if self.shk.s ~= 0 then self.shk.s = 0 end end
+	if math.abs(self.shk.s) > 5 then self.shk.s = lerp(self.shk.s, 0, 5, dt) else if self.shk.s ~= 0 then self.shk.s = 0 end end
 end
 
 function Camera:draw(func)
@@ -58,11 +63,11 @@ function Camera:get_zoom()
 	return self.cam.s, self.cam.target_s 
 end
 
-function Camera:set_smoothness(sv) 
+function Camera:setlerpness(sv) 
 	self.cam.sv = sv 
 end
 
-function Camera:set_zoom_smoothness(sv) 
+function Camera:set_zoomlerpness(sv) 
 	self.cam.ssv = ssv 
 end
 
