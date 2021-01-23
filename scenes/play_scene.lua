@@ -8,10 +8,15 @@ function Play_scene:new(id)
 	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {25, 5, 5}, _, {1, 1, 1})
 	@.eye   = g3d.Model('assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
 
-	@.cube   = g3d.Model('assets/obj/cube.obj'  , _                         , {2, 5,10}, _, {.5, .5, .5})
-	@.cube1  = g3d.Model('assets/obj/cube.obj'  , _                         , {4, 0, 8}, _, {.5, .5, .5})
-	@.cube2  = g3d.Model('assets/obj/cube.obj'  , _                         , {6, 0, 8}, _, {.5, .5, .5})
-	@.cube3  = g3d.Model('assets/obj/cube.obj'  , _                         , {8, 0, 8}, _, {.5, .5, .5})
+	@.plane  = g3d.Model({
+		{0, 0, 2}, {10, 0, 2}, {10, 1, 2},
+		{0, 0, 3}, {10, 0, 3}, {10, 1, 3},
+	})
+
+	@.cube   = g3d.Model('assets/obj/cube.obj', _ , {2, 5,10}, _, {.5, .5, .5})
+	@.cube1  = g3d.Model('assets/obj/cube.obj', _ , {4, 0, 8}, _, {.5, .5, .5})
+	@.cube2  = g3d.Model('assets/obj/cube.obj', _ , {6, 0, 8}, _, {.5, .5, .5})
+	@.cube3  = g3d.Model('assets/obj/cube.obj', _ , {8, 0, 8}, _, {.5, .5, .5})
 	@.canvas = lg.newCanvas()
 
 	@.grid = Grid(21, 14, { 
@@ -99,6 +104,8 @@ function Play_scene:draw_outside_camera_fg()
 		lg.setColor(1, 1, 1)
 		@.magica:draw()
 		@.eye:draw()
+
+		@.plane:draw()
 
 		ifor @.cubes do
 			if it.value == 1 then lg.setColor(1, 0, 1) end

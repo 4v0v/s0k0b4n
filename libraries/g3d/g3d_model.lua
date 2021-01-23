@@ -4,7 +4,7 @@ local load_obj = require(G3D_PATH .. "/g3d_objloader")
 
 local Model = {}
 
-Model.vertexFormat = {
+Model.vertex_format = {
 	{"VertexPosition", "float", 3},
 	{"VertexTexCoord", "float", 2},
 	{"VertexNormal"  , "float", 3},
@@ -12,25 +12,25 @@ Model.vertexFormat = {
 }
 Model.shader = require(G3D_PATH .. "/g3d_shaderloader")
 
-function Model:new(given, texture, pos, rot, sca)
+function Model:new(vertices, texture, pos, rot, sca)
 	local model = setmetatable({}, {__index = Model})
 
-	if type(given)   == "string" then given   = load_obj(given) end
-	if type(texture) == "string" then texture = love.graphics.newImage(texture) end
+	if type(vertices) == "string" then vertices = load_obj(vertices)              end
+	if type(texture)  == "string" then texture  = love.graphics.newImage(texture) end
 
-	model.x       = pos and pos[1] or 0
-	model.y       = pos and pos[2] or 0
-	model.z       = pos and pos[3] or 0
-	model.rx      = rot and rot[1] or 0
-	model.ry      = rot and rot[2] or 0
-	model.rz      = rot and rot[3] or 0
-	model.sx      = sca and sca[1] or 1
-	model.sy      = sca and sca[2] or 1
-	model.sz      = sca and sca[3] or 1
-	model.matrix  = {}
-	model.verts   = given
-	model.texture = texture
-	model.mesh    = love.graphics.newMesh(model.vertexFormat, model.verts, "triangles")
+	model.x        = pos and pos[1] or 0
+	model.y        = pos and pos[2] or 0
+	model.z        = pos and pos[3] or 0
+	model.rx       = rot and rot[1] or 0
+	model.ry       = rot and rot[2] or 0
+	model.rz       = rot and rot[3] or 0
+	model.sx       = sca and sca[1] or 1
+	model.sy       = sca and sca[2] or 1
+	model.sz       = sca and sca[3] or 1
+	model.matrix   = {}
+	model.vertices = vertices
+	model.texture  = texture
+	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 
 	model.mesh:setTexture(texture)
 	model:update_matrix()
@@ -53,28 +53,28 @@ function Model:draw()
 	love.graphics.setShader()
 end
 
-function Model:make_normals(flipped)
-	for i=1, #self.verts, 3 do
-		local vp = self.verts[i]
-		local v  = self.verts[i+1]
-		local vn = self.verts[i+2]
+-- function Model:make_normals(flipped)
+-- 	for i=1, #self.vertices, 3 do
+-- 		local vp = self.vertices[i]
+-- 		local v  = self.vertices[i+1]
+-- 		local vn = self.vertices[i+2]
 
-		local vec1     = {v[1]-vp[1], v[2]-vp[2], v[3]-vp[3]}
-		local vec2     = {vn[1]-v[1], vn[2]-v[2], vn[3]-v[3]}
-		local normal   = Vectors.normalize(Vectors.cross_product(vec1,vec2))
-		local flippage = flipped and -1 or 1
+-- 		local vec1    = {v[1]-vp[1], v[2]-vp[2], v[3]-vp[3]}
+-- 		local vec2    = {vn[1]-v[1], vn[2]-v[2], vn[3]-v[3]}
+-- 		local normal  = Vectors.normalize(Vectors.cross_product(vec1,vec2))
+-- 		local flipped = flipped and -1 or 1
 
-		vp[6] = normal[1] * flippage
-		vp[7] = normal[2] * flippage
-		vp[8] = normal[3] * flippage
-		v[6]  = normal[1] * flippage
-		v[7]  = normal[2] * flippage
-		v[8]  = normal[3] * flippage
-		vn[6] = normal[1] * flippage
-		vn[7] = normal[2] * flippage
-		vn[8] = normal[3] * flippage
-	end
-end
+-- 		vp[6] = normal[1] * flipped
+-- 		vp[7] = normal[2] * flipped
+-- 		vp[8] = normal[3] * flipped
+-- 		v[6]  = normal[1] * flipped
+-- 		v[7]  = normal[2] * flipped
+-- 		v[8]  = normal[3] * flipped
+-- 		vn[6] = normal[1] * flipped
+-- 		vn[7] = normal[2] * flipped
+-- 		vn[8] = normal[3] * flipped
+-- 	end
+-- end
 
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.x  = x  or self.x 
