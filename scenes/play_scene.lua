@@ -3,8 +3,6 @@ Play_scene = Scene:extend('Play_scene')
 function Play_scene:new(id)
 	Play_scene.super.new(@, id)
 
-	@.canvas = lg.newCanvas()
-
 	@.eye    = g3d.Model('assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
 	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {25, 5, 5}, _, {1, 1, 1})
 	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-500, -6, 15}, _, {100, 100, 100})
@@ -65,6 +63,8 @@ end
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
+	@.cube_tween:update(dt)
+
 	if pressed('escape') then game:change_scene_with_transition('menu') end
 	if down('q')      then g3d.Camera:update(dt, 'left')   end
 	if down('d')      then g3d.Camera:update(dt, 'right')  end
@@ -79,49 +79,48 @@ function Play_scene:update(dt)
 	if pressed('down')  then @.cube2:move(_,-1,_) end
 
 	@.moon:rotate(_,@.moon.ry + dt,_)
+	@.cube:move(_,@.cube_tween:get(),_)
 	@.cube1:rotate(@.cube1.rx+ 2*dt, _, _)
 	@.cube2:rotate(_, @.cube2.ry+ 2*dt, _)
 	@.cube3:rotate(_, _, @.cube3.rz+ 2*dt)
-
-	@.cube:move(_,@.cube_tween:get(),_)
 
 	-- g3d.Camera:look_at(@.earth:position())
 end
 
 function Play_scene:draw_outside_camera_fg()
-	lg.setCanvas({@.canvas, depth=true})
-	lg.clear()
+	g3d:attach()
 
-		@.earth:draw()
-		@.moon:draw()
+	@.earth:draw()
+	@.moon:draw()
 
-		lg.setColor(1, 0, 0)
-		@.cube:draw()
-		@.cube1:draw()
+	lg.setColor(1, 0, 0)
+	@.cube:draw()
+	@.cube1:draw()
 
-		lg.setColor(0, 1, 1)
-		@.cube2:draw()
+	lg.setColor(0, 1, 1)
+	@.cube2:draw()
 
-		lg.setColor(0, 1, 0)
-		@.cube3:draw()
+	lg.setColor(0, 1, 0)
+	@.cube3:draw()
 
-		lg.setColor(1, 1, 1)
-		@.magica:draw()
-		@.eye:draw()
+	lg.setColor(1, 1, 1)
+	@.magica:draw()
+	@.eye:draw()
 
-		ifor @.cubes do
-			if it.value == 1 then lg.setColor(1, 0, 1) end
-			if it.value == 2 then lg.setColor(0, 1, 0) end
-			if it.value == 3 then lg.setColor(0, 0, 1) end
-			it.cube:draw()
-		end
+	ifor @.cubes do
+		if it.value == 1 then lg.setColor(1, 0, 1) end
+		if it.value == 2 then lg.setColor(0, 1, 0) end
+		if it.value == 3 then lg.setColor(0, 0, 1) end
+		it.cube:draw()
+	end
 
-		lg.setColor(1, 1, 1)
-		@.plane:draw()
+	lg.setColor(1, 1, 1)
+	@.plane:draw()
 
-	lg.setCanvas()
+	g3d:detach()
 
-	lg.draw(@.canvas, 0, 0)
+	g3d:draw(0, 0)
+
 	lg.print(
 		'x     = ' .. rounded(g3d.Camera.x    , 2) .. '\n' ..
 		'y     = ' .. rounded(g3d.Camera.y    , 2) .. '\n' ..
