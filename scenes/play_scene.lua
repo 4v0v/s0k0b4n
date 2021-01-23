@@ -4,7 +4,7 @@ function Play_scene:new(id)
 	Play_scene.super.new(@, id)
 
 	@.earth  = g3d.Model('assets/obj/sphere.obj', _ , {5, 5, 0}, _, { .3,  .3,  .3})
-	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-1, -6, 15}, _, {.5, .5, .5})
+	@.moon   = g3d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-500, -6, 15}, _, {100, 100, 100})
 	@.magica = g3d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {25, 5, 5}, _, {1, 1, 1})
 	@.eye   = g3d.Model('assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
 
@@ -71,8 +71,6 @@ function Play_scene:update(dt)
 	if pressed('right') then @.cube2:move_x(1)  end
 	if pressed('up')    then @.cube2:move_y(1)  end
 	if pressed('down')  then @.cube2:move_y(-1) end
-
-	-- g3d.Camera:look_at(@.earth:position())
 
 	@.moon:rotate(_,@.moon.ry + dt,_)
 	@.cube1:rotate(@.cube1.rx+ 2*dt, _, _)

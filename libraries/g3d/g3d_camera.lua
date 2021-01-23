@@ -1,4 +1,5 @@
 local Matrices = require(G3D_PATH .. '/g3d_matrices')
+local cos, sin, max, min, abs, atan2, sqrt = math.cos, math.sin, math.max, math.min, math.abs, math.atan2, math.sqrt
 
 local Camera = {}
 
@@ -55,9 +56,9 @@ function Camera:update(dt, dir)
 
 	-- move relative to camera's direction
 	if dx ~= 0 or dy ~= 0 then
-		local angle = math.atan2(dy, dx)
-		local dir_x = math.cos(self.yaw + angle)           
-		local dir_z = math.sin(self.yaw + angle + math.pi) 
+		local angle = atan2(dy, dx)
+		local dir_x = cos(self.yaw + angle)           
+		local dir_z = sin(self.yaw + angle + math.pi) 
 
 		self.x = self.x + speed * dir_x
 		self.z = self.z + speed * dir_z
@@ -65,10 +66,10 @@ function Camera:update(dt, dir)
 
 	-- move toward / away from the camera's target
 	if dir_t ~= 0 then 
-		local cos_pitch = sign(math.cos(self.pitch)) * math.max(math.abs(math.cos(self.pitch)), .001)
-		local tx = math.sin(self.yaw) * cos_pitch
-		local ty = -math.sin(self.pitch)
-		local tz = math.cos(self.yaw) * cos_pitch
+		local cos_pitch = sign(cos(self.pitch)) * max(abs(cos(self.pitch)), .001)
+		local tx = sin(self.yaw) * cos_pitch
+		local ty = -sin(self.pitch)
+		local tz = cos(self.yaw) * cos_pitch
 
 		self.x = self.x + tx * speed * dir_t
 		self.y = self.y + ty * speed * dir_t
@@ -80,7 +81,7 @@ end
 
 function Camera:mousemoved(dx, dy)
 	local dir   = self.yaw + dx * self.sensitivity
-	local pitch = math.max(math.min(self.pitch + dy * self.sensitivity, math.pi/2), -math.pi/2)
+	local pitch = max(min(self.pitch + dy * self.sensitivity, math.pi/2), -math.pi/2)
 	self:look_in_dir(dir, pitch)
 end
 
@@ -104,14 +105,14 @@ function Camera:look_at(tx, ty, tz)
 	else
 		self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
 	end
-	self.tx = math.max(math.abs(self.tx), .001)
+	self.tx = max(abs(self.tx), .001)
 
 	local dx = self.tx - self.x
 	local dy = self.ty - self.y
 	local dz = self.tz - self.z
 
-	self.yaw   = -math.atan2(dz, dx) + math.pi/2
-	self.pitch = -math.atan2(dy, math.sqrt(dx^2 + dz^2))
+	self.yaw   = -atan2(dz, dx) + math.pi/2
+	self.pitch = -atan2(dy, sqrt(dx^2 + dz^2))
 
 	self:update_view_matrix()
 end
@@ -120,10 +121,10 @@ function Camera:look_in_dir(yaw, pitch)
 	self.yaw   = yaw   or self.yaw
 	self.pitch = pitch or self.pitch
 
-	local cos_pitch = sign(math.cos(self.pitch)) * math.max(math.abs(math.cos(self.pitch)), .001)
-	self.tx = self.x + math.sin(self.yaw) * cos_pitch
-	self.ty = self.y - math.sin(self.pitch)
-	self.tz = self.z + math.cos(self.yaw) * cos_pitch
+	local cos_pitch = sign(cos(self.pitch)) * max(abs(cos(self.pitch)), .001)
+	self.tx = self.x + sin(self.yaw) * cos_pitch
+	self.ty = self.y - sin(self.pitch)
+	self.tz = self.z + cos(self.yaw) * cos_pitch
 
 	self:update_view_matrix()
 end
