@@ -1,4 +1,4 @@
-local Vectors = require(G3D_PATH .. "/g3d_vectors")
+local Vectors = require(G4D_PATH .. "/g4d_vectors")
 local cos, sin, tan = math.cos, math.sin, math.tan
 
 local Matrices = {}

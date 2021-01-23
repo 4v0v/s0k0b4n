@@ -25,7 +25,7 @@ function love.run()
 		lg.setLineStyle('rough')
 		lk.setKeyRepeat(true)
 		
-		g3d     = require('libraries/g3d')
+		g4d     = require('libraries/g4d')
 		Class   = require('libraries/class')
 		Camera  = require('libraries/camera')
 		Timer   = require('libraries/timer')

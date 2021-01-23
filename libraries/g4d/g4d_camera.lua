@@ -1,4 +1,4 @@
-local Matrices = require(G3D_PATH .. '/g3d_matrices')
+local Matrices = require(G4D_PATH .. '/g4d_matrices')
 local cos, sin, max, min, abs, atan2, sqrt = math.cos, math.sin, math.max, math.min, math.abs, math.atan2, math.sqrt
 
 local function sign(x) 
@@ -19,7 +19,7 @@ function Camera:new()
 	local cam = setmetatable({}, {__index = Camera})
 
 	cam.aspect_ratio = love.graphics.getWidth()/love.graphics.getHeight()
-	cam.shader       = require(G3D_PATH .. "/g3d_shaderloader")
+	cam.shader       = require(G4D_PATH .. "/g4d_shaderloader")
 	cam.fov          = math.pi/3
 	cam.near_clip    = .01
 	cam.far_clip     = 1000

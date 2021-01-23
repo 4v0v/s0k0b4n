@@ -1,6 +1,6 @@
-local Vectors  = require(G3D_PATH .. "/g3d_vectors")
-local Matrices = require(G3D_PATH .. "/g3d_matrices")
-local load_obj = require(G3D_PATH .. "/g3d_objloader")
+local Vectors  = require(G4D_PATH .. "/g4d_vectors")
+local Matrices = require(G4D_PATH .. "/g4d_matrices")
+local load_obj = require(G4D_PATH .. "/g4d_objloader")
 
 local Model = {}
 
@@ -10,7 +10,7 @@ Model.vertex_format = {
 	{"VertexNormal"  , "float", 3},
 	{"VertexColor"   , "byte" , 4},
 }
-Model.shader = require(G3D_PATH .. "/g3d_shaderloader")
+Model.shader = require(G4D_PATH .. "/g4d_shaderloader")
 
 function Model:new(vertices, texture, pos, rot, sca)
 	local model = setmetatable({}, {__index = Model})

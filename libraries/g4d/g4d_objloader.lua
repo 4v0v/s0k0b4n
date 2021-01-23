@@ -20,7 +20,7 @@ return function(path)
 			local store = {}
 
 			-- TODO allow models with untriangulated faces
-			assert(#words == 4, 'Faces in '..path..' must be triangulated before they can be used in g3d!')
+			assert(#words == 4, 'Faces in '..path..' must be triangulated before they can be used in g4d!')
 
 			for i=2, #words do
 				local num  = ''
