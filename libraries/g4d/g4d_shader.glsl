@@ -1,6 +1,6 @@
 uniform mat4 projection_matrix;
-uniform mat4 model_matrix;
 uniform mat4 view_matrix;
+uniform mat4 model_matrix;
 
 varying vec4 vertex_color;
 
@@ -16,7 +16,6 @@ vec4 position(mat4 transform_projection, vec4 vertex_position)
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
 {
 	vec4 texture_color = Texel(tex, texture_coords);
-	if (texture_color.a == 0.0) { discard; }
 	return vec4(texture_color) * color * vertex_color;
 }
 #endif
