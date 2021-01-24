@@ -3,46 +3,38 @@ Play_scene = Scene:extend('Play_scene')
 function Play_scene:new(id)
 	Play_scene.super.new(@, id)
 
-	@.eye    = g4d.Model('assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
-	@.magica = g4d.Model('assets/obj/magica.obj', 'assets/images/magica.png', {25, 5, 5}, _, {1, 1, 1})
-	@.moon   = g4d.Model('assets/obj/sphere.obj', 'assets/images/moon.png'  , {-500, -6, 15}, _, {100, 100, 100})
-	@.cube   = g4d.Model('assets/obj/cube.obj', _ , {2, 5,10}, _, {.5, .5, .5})
-	@.cube1  = g4d.Model('assets/obj/cube.obj', _ , {4, 0, 8}, _, {.5, .5, .5})
-	@.cube2  = g4d.Model('assets/obj/cube.obj', _ , {6, 0, 8}, _, {.5, .5, .5})
-	@.cube3  = g4d.Model('assets/obj/cube.obj', _ , {8, 0, 8}, _, {.5, .5, .5})
-	@.earth  = g4d.Model('assets/obj/sphere.obj', _ , {5, 5, 0}, _, { .3, .3, .3})
+	@.eye    = g4d.add_model(_,'assets/obj/eye.obj', 'assets/images/eye.png'  , {5, 5, 5}, _, {.5, .5, .5})
+	@.magica = g4d.add_model(_,'assets/obj/magica.obj', 'assets/images/magica.png', {25, -20, -5}, _, {1, 1, 1})
+	@.moon   = g4d.add_model(_,'assets/obj/sphere.obj', 'assets/images/moon.png'  , {-500, -6, 15}, _, {100, 100, 100})
+	@.cube   = g4d.add_model(_,'assets/obj/cube.obj', _ , {2, 5,20}, _, {.5, .5, .5}, {1, 0, 0})
+	@.cube1  = g4d.add_model(_,'assets/obj/cube.obj', _ , {4, 0, 8}, _, {.5, .5, .5}, {1, 0, 0})
+	@.cube2  = g4d.add_model(_,'assets/obj/cube.obj', _ , {6, 0, 8}, _, {.5, .5, .5}, {0, 1, 0})
+	@.cube3  = g4d.add_model(_,'assets/obj/cube.obj', _ , {8, 0, 8}, _, {.5, .5, .5}, {0, 0, 1})
+	@.earth  = g4d.add_model(_,'assets/obj/sphere.obj', _ , {5, 5, 0}, _, { .3, .3, .3})
+	@.plane  = g4d.add_model(_,
+		{
+			{  0,   0, 100,  1, 1,  _, _, _,  _, _, _, _}, 
+			{  0, 100, 100,  1, 0,  _, _, _,  _, _, _, _}, 
+			{100, 100, 100,  0, 0,  _, _, _,  _, _, _, _},
 
-	@.plane  = g4d.Model({
-		{ 1,  1, 10, _, _, _, _, _, 0, 1, 1}, 
-		{ 1, 10, 10, _, _, _, _, _, 1, 0, 1}, 
-		{10, 10, 10, _, _, _, _, _, 1, 1, 0},
-	})
+			{  0,   0, 100,  1, 1,  _, _, _,  _, _, _, _}, 
+			{100,   0, 100,  0, 1,  _, _, _,  _, _, _, _},
+			{100, 100, 100,  0, 0,  _, _, _,  _, _, _, _},
+		},
+		'assets/images/smiley.png'
+	)
+	@.floor = g4d.add_model(_, 'assets/obj/plane.obj', _, {_, -30, _}, {math.pi, _, _}, {50, 50, 50}, {.2, .2 ,.2})
 
-	@.grid = Grid(21, 14, { 
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+	@.grid = Grid(21, 5, { 
 		_, 1, _, 1, _, 1, 1, 1, _, 1, _, _, _, 1, _, _, _, 1, 1, 1, _,
 		_, 1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
 		_, 1, 1, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
 		_, 1, _, 1, _, 1, _, _, _, 1, _, _, _, 1, _, _, _, 1, _, 1, _,
 		_, 1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, 1, 1, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-		_, 1, _, 1, _, 1, 1, 1, _, 1, 1, 1, _, 1, _, _, _, 1, 1, _, _,
-		_, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, _, _, 1, _, 1, _,
-		_, 1, _, 1, _, 1, _, 1, _, 1, 1, _, _, 1, _, _, _, 1, _, 1, _,
-		_, 1, 1, 1, _, 1, _, 1, _, 1, _, 1, _, 1, _, _, _, 1, _, 1, _,
-		_, 1, _, 1, _, 1, 1, 1, _, 1, _, 1, _, 1, 1, 1, _, 1, 1, _, _,
-		_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-	})
-
-	@.cubes = {}
-	@.grid:foreach(fn(grid, i, j)
+	}):foreach(fn(grid, i, j)
 		local value = grid:get(i, j)
 		if !value then return end
-		table.insert(@.cubes, { 
-			value = value, 
-			cube = g4d.Model('assets/obj/cube.obj', _ , {i, -j, 5}, _, {.5, .5, .5})
-		})
+		g4d.add_model(_, 'assets/obj/cube.obj', _ , {i, -j, 5}, _, {.5, .5, .5}, {1, 0, 1})
 	end)
 
 	@.cube_tween = Tween(1, 'in-out-cubic')
@@ -66,12 +58,12 @@ function Play_scene:update(dt)
 	@.cube_tween:update(dt)
 
 	if pressed('escape') then game:change_scene_with_transition('menu') end
-	if down('q')      then g4d.Camera:update(dt, 'left')   end
-	if down('d')      then g4d.Camera:update(dt, 'right')  end
-	if down('lshift') then g4d.Camera:update(dt, 'up')     end
-	if down('lctrl')  then g4d.Camera:update(dt, 'down')   end
-	if down('z')      then g4d.Camera:update(dt, 'toward') end
-	if down('s')      then g4d.Camera:update(dt, 'back')   end
+	if down('q')      then g4d.camera:update(dt, 'left')   end
+	if down('d')      then g4d.camera:update(dt, 'right')  end
+	if down('lshift') then g4d.camera:update(dt, 'up')     end
+	if down('lctrl')  then g4d.camera:update(dt, 'down')   end
+	if down('z')      then g4d.camera:update(dt, 'toward') end
+	if down('s')      then g4d.camera:update(dt, 'back')   end
 
 	if pressed('left')  then @.cube2:move(-1,_,_) end
 	if pressed('right') then @.cube2:move(1,_,_)  end
@@ -84,52 +76,21 @@ function Play_scene:update(dt)
 	@.cube2:rotate(_, @.cube2.ry+ 2*dt, _)
 	@.cube3:rotate(_, _, @.cube3.rz+ 2*dt)
 
-	g4d.Camera:look_at(@.earth:position())
+	-- g4d.camera:look_at(@.earth:position())
 end
 
 function Play_scene:draw_outside_camera_fg()
-	g4d:attach()
-
-	@.earth:draw()
-	@.moon:draw()
-
-	lg.setColor(1, 0, 0)
-	@.cube:draw()
-	@.cube1:draw()
-
-	lg.setColor(0, 1, 1)
-	@.cube2:draw()
-
-	lg.setColor(0, 1, 0)
-	@.cube3:draw()
-
-	lg.setColor(1, 1, 1)
-	@.magica:draw()
-	@.eye:draw()
-
-	ifor @.cubes do
-		if it.value == 1 then lg.setColor(1, 0, 1) end
-		if it.value == 2 then lg.setColor(0, 1, 0) end
-		if it.value == 3 then lg.setColor(0, 0, 1) end
-		it.cube:draw()
-	end
-
-	lg.setColor(1, 1, 1)
-	@.plane:draw()
-
-	g4d:detach()
-
-	g4d:draw(0, 0)
+	g4d:draw()
 
 	lg.print(
-		'x     = ' .. rounded(g4d.Camera.x    , 2) .. '\n' ..
-		'y     = ' .. rounded(g4d.Camera.y    , 2) .. '\n' ..
-		'z     = ' .. rounded(g4d.Camera.z    , 2) .. '\n\n' ..
-		'tx    = ' .. rounded(g4d.Camera.tx   , 2) .. '\n' ..
-		'ty    = ' .. rounded(g4d.Camera.ty   , 2) .. '\n' ..
-		'tz    = ' .. rounded(g4d.Camera.tz   , 2) .. '\n\n' ..
-		'yaw   = ' .. rounded(g4d.Camera.yaw  , 2) .. '\n' ..
-		'pitch = ' .. rounded(g4d.Camera.pitch, 2)
+		'x     = ' .. rounded(g4d.camera.x    , 2) .. '\n' ..
+		'y     = ' .. rounded(g4d.camera.y    , 2) .. '\n' ..
+		'z     = ' .. rounded(g4d.camera.z    , 2) .. '\n\n' ..
+		'tx    = ' .. rounded(g4d.camera.tx   , 2) .. '\n' ..
+		'ty    = ' .. rounded(g4d.camera.ty   , 2) .. '\n' ..
+		'tz    = ' .. rounded(g4d.camera.tz   , 2) .. '\n\n' ..
+		'yaw   = ' .. rounded(g4d.camera.yaw  , 2) .. '\n' ..
+		'pitch = ' .. rounded(g4d.camera.pitch, 2)
 	)
 
 	local cx, cy = lg.getWidth()/2, lg.getHeight()/2
@@ -139,5 +100,5 @@ function Play_scene:draw_outside_camera_fg()
 end
 
 function Play_scene:mousemoved(x,y, dx,dy)
-	g4d.Camera:mousemoved(dx,dy)
+	g4d.camera:mousemoved(dx,dy)
 end

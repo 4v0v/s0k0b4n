@@ -12,12 +12,29 @@ Model.vertex_format = {
 }
 Model.shader = require(G4D_PATH .. "/g4d_shaderloader")
 
-function Model:new(vertices, texture, pos, rot, sca)
+Model.models = {}
+
+function Model:update_light_data()
+	local light_data = {}
+	for _, model in Model.models do 
+		if model.is_light then 
+			table.insert(light_data, {model.x, model.y, model.z}) -- abiant light 
+		end
+	end
+
+	-- Model.shader:send(light_data)
+end
+
+
+function Model:new(id, vertices, texture, pos, rot, sca, color)
 	local model = setmetatable({}, {__index = Model})
 
 	if type(vertices) == "string" then vertices = load_obj(vertices)              end
 	if type(texture)  == "string" then texture  = love.graphics.newImage(texture) end
 
+	model.id       = id or 'id'
+
+	model.is_light = false
 	model.x        = pos and pos[1] or 0
 	model.y        = pos and pos[2] or 0
 	model.z        = pos and pos[3] or 0
@@ -27,22 +44,58 @@ function Model:new(vertices, texture, pos, rot, sca)
 	model.sx       = sca and sca[1] or 1
 	model.sy       = sca and sca[2] or 1
 	model.sz       = sca and sca[3] or 1
+	model.color    = color or {1, 1, 1}
 	model.matrix   = {}
 	model.vertices = vertices
 	model.texture  = texture
 	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 
 	model.mesh:setTexture(texture)
+	model:generate_normals()
 	model:update_matrix()
+
+	if model.is_light then 
+		Model.update_light_data() 
+	end
+
+	table.insert(Model.models, model)
 
 	return model
 end
 
 function Model:draw()
+	local r,g,b,a = love.graphics.getColor()
+	love.graphics.setColor(self.color)
 	love.graphics.setShader(self.shader)
 	self.shader:send("model_matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
+	love.graphics.setColor(r, g, b, a)
+end
+
+function Model:generate_normals(flipped)
+	for i=1, #self.vertices, 3 do
+		local vp = self.vertices[i]
+		local v  = self.vertices[i+1]
+		local vn = self.vertices[i+2]
+
+		local vec1     = {v[1]-vp[1], v[2]-vp[2], v[3]-vp[3]}
+		local vec2     = {vn[1]-v[1], vn[2]-v[2], vn[3]-v[3]}
+		local normal   = Vectors:normalize(Vectors:cross_product(vec1,vec2))
+		local flippage = flipped and -1 or 1
+
+		vp[6] = normal[1] * flippage
+		vp[7] = normal[2] * flippage
+		vp[8] = normal[3] * flippage
+
+		v[6] = normal[1] * flippage
+		v[7] = normal[2] * flippage
+		v[8] = normal[3] * flippage
+
+		vn[6] = normal[1] * flippage
+		vn[7] = normal[2] * flippage
+		vn[8] = normal[3] * flippage
+	end
 end
 
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
@@ -55,6 +108,10 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.sx = sx or self.sx
 	self.sy = sy or self.sy
 	self.sz = sz or self.sz
+
+	if self.is_light then 
+		Model.update_light_data()
+	end
 
 	self:update_matrix()
 end
@@ -107,4 +164,4 @@ function Model:get_scale()
 	return {self.sx, self.sy, self.sz} 
 end
 
-return setmetatable({}, {__call = Model.new})
+return setmetatable(Model, {__call = Model.new})

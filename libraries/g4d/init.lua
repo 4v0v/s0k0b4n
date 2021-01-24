@@ -21,22 +21,24 @@ local camera = require(G4D_PATH .. "/g4d_camera")
 G4D_PATH     = nil
 
 local G4d = {
-	Model  = model,
-	Camera = camera,
-	Canvas = love.graphics.newCanvas(),
+	camera    = camera,
+	add_model = model,
+	models    = model.models,
+	canvas    = love.graphics.newCanvas(),
 }
 
-function G4d:attach() 
-	love.graphics.setCanvas({self.Canvas, depth=true})
+function G4d:draw(x, y) 
+	love.graphics.setCanvas({self.canvas, depth=true})
 	love.graphics.clear()
-end
 
-function G4d:detach() 
+
+	for k, model in ipairs(self.models) do 
+		model:draw()
+	end
+
 	love.graphics.setCanvas()
-end
-
-function G4d:draw(x, y)
-	love.graphics.draw(self.Canvas, x or 0, y or 0)
+	
+	love.graphics.draw(self.canvas, x or 0, y or 0)
 end
 
 return G4d
