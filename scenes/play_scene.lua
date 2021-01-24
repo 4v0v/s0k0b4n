@@ -84,7 +84,7 @@ function Play_scene:update(dt)
 	@.cube2:rotate(_, @.cube2.ry+ 2*dt, _)
 	@.cube3:rotate(_, _, @.cube3.rz+ 2*dt)
 
-	-- g4d.Camera:look_at(@.earth:position())
+	g4d.Camera:look_at(@.earth:position())
 end
 
 function Play_scene:draw_outside_camera_fg()
