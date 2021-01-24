@@ -60,8 +60,8 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 end
 
 function Model:update_matrix()
-	self.matrix = Matrices.get_transformation(
-		self.x , self.y , self.z ,
+	self.matrix = Matrices:get_transformation_matrix(
+		self.x,  self.y,  self.z,
 		self.rx, self.ry, self.rz,
 		self.sx, self.sy, self.sz
 	)

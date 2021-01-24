@@ -131,15 +131,15 @@ function Camera:look_in_dir(yaw, pitch)
 end
 
 function Camera:update_view_matrix(dt)
-	self.shader:send('view_matrix', Matrices.get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+	self.shader:send('view_matrix', Matrices:get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
 end
 
 function Camera:update_projection_matrix(type)
 	local matrix
 	if     type == 'projection'   then
-		matrix = Matrices.get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio)
+		matrix = Matrices:get_projection_matrix(self.fov, self.near_clip, self.far_clip, self.aspect_ratio)
 	elseif type == 'orthographic' then
-		matrix = Matrices.get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
+		matrix = Matrices:get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
 	end
 
 	self.shader:send('projection_matrix', matrix)
