@@ -74,30 +74,31 @@ function Matrices:get_scale_matrix(sx, sy, sz)
 	}
 end
 
-function Matrices:get_projection_matrix(fov, near, far, aspect_ration)
-	local t = near * tan(fov/2)
-	local b = -1   * t
-	local r = t    * aspect_ration
-	local l = -1   * r
+function Matrices:get_projection_matrix(fov, near, far, aspect_ratio)
+	local x = 1 / (aspect_ratio * tan(fov / 2))
+	local y = 1 / (tan(fov / 2))
+	local z = -((far + near) / (far - near)) 
+	local w = -(( 2 * far * near) / (far - near)) 
 
 	return {
-		2*near/(r-l), 0,            (r+l)/(r-l),              0,
-		0,            2*near/(t-b), (t+b)/(t-b),              0,
-		0,            0,            -1*(far+near)/(far-near), -2*far*near/(far-near),
-		0,            0,            -1,                       0
+		x, 0, 0,  0,
+		0, y, 0,  0,
+		0, 0, z,  w,
+		0, 0, -1, 0,
 	}
+
 end
 
-function Matrices:get_orthographic_matrix(fov, size, near, far, aspect_ration)
+function Matrices:get_orthographic_matrix(fov, size, near, far, aspect_ratio)
 	local t = size * tan(fov/2)
 	local b = -1   * t
-	local r = t    * aspect_ration
+	local r = t    * aspect_ratio
 	local l = -1   * r
 
 	return {
-		2/(r-l), 0,       0,             -1*(r+l)/(r-l),
-		0,       2/(t-b), 0,             -1*(t+b)/(t-b),
-		0,       0,       -2/(far-near), -(far+near)/(far-near),
+		2/(r-l), 0,       0,             -((r+l)/(r-l)),
+		0,       2/(t-b), 0,             -((t+b)/(t-b)),
+		0,       0,       -2/(far-near), -((far+near)/(far-near)),
 		0,       0,       0,             1
 	}
 end
