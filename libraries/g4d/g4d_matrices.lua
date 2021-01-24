@@ -86,7 +86,6 @@ function Matrices:get_projection_matrix(fov, near, far, aspect_ratio)
 		0, 0, z,  w,
 		0, 0, -1, 0,
 	}
-
 end
 
 function Matrices:get_orthographic_matrix(fov, size, near, far, aspect_ratio)
