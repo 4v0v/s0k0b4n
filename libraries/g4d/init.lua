@@ -30,14 +30,11 @@ local G4d = {
 function G4d:draw(x, y) 
 	love.graphics.setCanvas({self.canvas, depth=true})
 	love.graphics.clear()
-
-
-	for k, model in ipairs(self.models) do 
-		model:draw()
-	end
-
+		for _, model in ipairs(self.models) do 
+			model:draw()
+		end
 	love.graphics.setCanvas()
-	
+
 	love.graphics.draw(self.canvas, x or 0, y or 0)
 end
 

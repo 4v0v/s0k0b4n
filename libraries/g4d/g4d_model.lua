@@ -7,34 +7,44 @@ local Model = {}
 Model.vertex_format = {
 	{"VertexPosition", "float", 3},
 	{"VertexTexCoord", "float", 2},
-	{"VertexNormal"  , "float", 3},
-	{"VertexColor"   , "byte" , 4},
+	{"initial_vertex_normal", "float", 4},
+	-- {"VertexColor"   , "byte",  4},
 }
+
 Model.shader = require(G4D_PATH .. "/g4d_shaderloader")
 
 Model.models = {}
 
-function Model:update_light_data()
-	local light_data = {}
-	for _, model in Model.models do 
-		if model.is_light then 
-			table.insert(light_data, {model.x, model.y, model.z}) -- abiant light 
+function Model:update_lights()
+	local lights = {}
+	for _, model in ipairs(Model.models) do 
+		if model.light.is_light then 
+			table.insert(lights, {
+				position    = {model.x, model.y, model.z, 1},
+				color       = model.light.color,
+				ambientness = model.light.ambientness,
+				diffuseness = model.light.diffuseness,
+			})
 		end
 	end
 
-	-- Model.shader:send(light_data)
+	for i, v in ipairs(lights) do
+		local c_index = i-1
+		Model.shader:send('lights['.. c_index  ..'].position', v.position)
+		Model.shader:send('lights['.. c_index  ..'].color', v.color)
+		Model.shader:send('lights['.. c_index  ..'].ambientness', v.ambientness)
+		Model.shader:send('lights['.. c_index  ..'].diffuseness', v.diffuseness)
+	end
+
+	Model.shader:send('lights_count', #lights)
 end
 
-
-function Model:new(id, vertices, texture, pos, rot, sca, color)
+function Model:new(vertices, texture, pos, rot, sca, color, is_light, ambient_power)
 	local model = setmetatable({}, {__index = Model})
 
 	if type(vertices) == "string" then vertices = load_obj(vertices)              end
 	if type(texture)  == "string" then texture  = love.graphics.newImage(texture) end
 
-	model.id       = id or 'id'
-
-	model.is_light = false
 	model.x        = pos and pos[1] or 0
 	model.y        = pos and pos[2] or 0
 	model.z        = pos and pos[3] or 0
@@ -44,33 +54,41 @@ function Model:new(id, vertices, texture, pos, rot, sca, color)
 	model.sx       = sca and sca[1] or 1
 	model.sy       = sca and sca[2] or 1
 	model.sz       = sca and sca[3] or 1
-	model.color    = color or {1, 1, 1}
 	model.matrix   = {}
 	model.vertices = vertices
 	model.texture  = texture
 	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 
+	model.material = {
+		color       = color or {1, 1, 1},
+	}
+
+	model.light = {
+		color       = color or {1, 1, 1},
+		is_light    = is_light or false,
+		ambientness = ambientness or .1,
+		diffuseness = diffuseness or .1,
+	}
+
 	model.mesh:setTexture(texture)
 	model:generate_normals()
 	model:update_matrix()
 
-	if model.is_light then 
-		Model.update_light_data() 
-	end
-
 	table.insert(Model.models, model)
+
+	if model.light.is_light then
+		Model.update_lights() 
+	end
 
 	return model
 end
 
 function Model:draw()
-	local r,g,b,a = love.graphics.getColor()
-	love.graphics.setColor(self.color)
 	love.graphics.setShader(self.shader)
+	self.shader:send("model_color", self.material.color)
 	self.shader:send("model_matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
-	love.graphics.setColor(r, g, b, a)
 end
 
 function Model:generate_normals(flipped)
@@ -109,8 +127,8 @@ function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
 	self.sy = sy or self.sy
 	self.sz = sz or self.sz
 
-	if self.is_light then 
-		Model.update_light_data()
+	if self.light.is_light then 
+		Model.update_lights()
 	end
 
 	self:update_matrix()
