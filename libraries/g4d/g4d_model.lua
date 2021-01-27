@@ -2,48 +2,22 @@ local Vectors  = require(G4D_PATH .. "/g4d_vectors")
 local Matrices = require(G4D_PATH .. "/g4d_matrices")
 local load_obj = require(G4D_PATH .. "/g4d_objloader")
 
-local Model = {}
-
-Model.vertex_format = {
-	{"VertexPosition", "float", 3},
-	{"VertexTexCoord", "float", 2},
-	{"initial_vertex_normal", "float", 4},
-	-- {"VertexColor"   , "byte",  4},
+local Model = {
+	vertex_format = {
+		{"VertexPosition", "float", 3},
+		{"VertexTexCoord", "float", 2},
+		{"initial_vertex_normal", "float", 4},
+	},
+	shader = require(G4D_PATH .. "/g4d_shaderloader"),
+	models = {}
 }
 
-Model.shader = require(G4D_PATH .. "/g4d_shaderloader")
-
-Model.models = {}
-
-function Model:update_lights()
-	local lights = {}
-	for _, model in ipairs(Model.models) do 
-		if model.light.is_light then 
-			table.insert(lights, {
-				position    = {model.x, model.y, model.z, 1},
-				color       = model.light.color,
-				ambientness = model.light.ambientness,
-				diffuseness = model.light.diffuseness,
-			})
-		end
-	end
-
-	for i, v in ipairs(lights) do
-		local c_index = i-1
-		Model.shader:send('lights['.. c_index  ..'].position', v.position)
-		Model.shader:send('lights['.. c_index  ..'].color', v.color)
-		Model.shader:send('lights['.. c_index  ..'].ambientness', v.ambientness)
-		Model.shader:send('lights['.. c_index  ..'].diffuseness', v.diffuseness)
-	end
-
-	Model.shader:send('lights_count', #lights)
-end
-
-function Model:new(vertices, texture, pos, rot, sca, color, is_light, ambient_power)
+function Model:new(vertices, texture, pos, rot, sca, color, is_light, ambient_intensity, diffuse_intensity, specular_intensity)
 	local model = setmetatable({}, {__index = Model})
 
 	if type(vertices) == "string" then vertices = load_obj(vertices)              end
 	if type(texture)  == "string" then texture  = love.graphics.newImage(texture) end
+	if not color                  then color    = {}                              end
 
 	model.x        = pos and pos[1] or 0
 	model.y        = pos and pos[2] or 0
@@ -60,15 +34,25 @@ function Model:new(vertices, texture, pos, rot, sca, color, is_light, ambient_po
 	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 
 	model.material = {
-		color       = color or {1, 1, 1},
+		color       = {color[1] or 1, color[2] or 1, color[3] or 1, color[4] or 1},
+		ambient     = 0,
+		diffuse     = 0,
+		specular    = 0,
+		shininess   = 0,
+		is_lit      = true,
 	}
 
 	model.light = {
-		color       = color or {1, 1, 1},
-		is_light    = is_light or false,
-		ambientness = ambientness or .1,
-		diffuseness = diffuseness or .1,
+		color              = {color[1] or 1, color[2] or 1, color[3] or 1, color[4] or 1},
+		is_light           = is_light or false,
+		ambient_intensity  = ambient_intensity or .1,
+		diffuse_intensity  = diffuse_intensity or .3,
+		specular_intensity = specular_intensity or .1,
 	}
+
+	if model.light.is_light then 
+		model.material.is_lit = false 
+	end
 
 	model.mesh:setTexture(texture)
 	model:generate_normals()
@@ -86,9 +70,36 @@ end
 function Model:draw()
 	love.graphics.setShader(self.shader)
 	self.shader:send("model_color", self.material.color)
+	self.shader:send("model_is_lit", self.material.is_lit)
 	self.shader:send("model_matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
+end
+
+function Model:update_lights()
+	local lights = {}
+	for _, model in ipairs(Model.models) do 
+		if model.light.is_light then 
+			table.insert(lights, {
+				position           = {model.x, model.y, model.z, 1},
+				color              = model.light.color,
+				ambient_intensity  = model.light.ambient_intensity,
+				diffuse_intensity  = model.light.diffuse_intensity,
+				specular_intensity = model.light.specular_intensity,
+			})
+		end
+	end
+
+	for i, v in ipairs(lights) do
+		local c_index = i-1
+		Model.shader:send('lights['.. c_index ..'].position'          , v.position)
+		Model.shader:send('lights['.. c_index ..'].color'             , v.color)
+		Model.shader:send('lights['.. c_index ..'].ambient_intensity' , v.ambient_intensity)
+		Model.shader:send('lights['.. c_index ..'].diffuse_intensity' , v.diffuse_intensity)
+		Model.shader:send('lights['.. c_index ..'].specular_intensity', v.specular_intensity)
+	end
+
+	Model.shader:send('lights_count', #lights)
 end
 
 function Model:generate_normals(flipped)

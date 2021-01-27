@@ -136,6 +136,11 @@ end
 
 function Camera:update_view_matrix(dt)
 	self.shader:send('view_matrix', Matrices:get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+
+
+	if self.shader:hasUniform('camera_position') then 
+		self.shader:send('camera_position', {self.x, self.y, self.z, 1})
+	end
 end
 
 function Camera:update_projection_matrix(type)
