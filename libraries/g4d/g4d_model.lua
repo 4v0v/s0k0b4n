@@ -69,9 +69,9 @@ end
 
 function Model:draw()
 	love.graphics.setShader(self.shader)
-	self.shader:send("model_color", self.material.color)
-	self.shader:send("model_is_lit", self.material.is_lit)
-	self.shader:send("model_matrix", self.matrix)
+	self.shader:send("model.color", self.material.color)
+	self.shader:send("model.is_lit", self.material.is_lit)
+	self.shader:send("model.matrix", self.matrix)
 	love.graphics.draw(self.mesh)
 	love.graphics.setShader()
 end
@@ -90,13 +90,13 @@ function Model:update_lights()
 		end
 	end
 
-	for i, v in ipairs(lights) do
+	for i, light in ipairs(lights) do
 		local c_index = i-1
-		Model.shader:send('lights['.. c_index ..'].position'          , v.position)
-		Model.shader:send('lights['.. c_index ..'].color'             , v.color)
-		Model.shader:send('lights['.. c_index ..'].ambient_intensity' , v.ambient_intensity)
-		Model.shader:send('lights['.. c_index ..'].diffuse_intensity' , v.diffuse_intensity)
-		Model.shader:send('lights['.. c_index ..'].specular_intensity', v.specular_intensity)
+		Model.shader:send('lights['.. c_index ..'].position'          , light.position)
+		Model.shader:send('lights['.. c_index ..'].color'             , light.color)
+		Model.shader:send('lights['.. c_index ..'].ambient_intensity' , light.ambient_intensity)
+		Model.shader:send('lights['.. c_index ..'].diffuse_intensity' , light.diffuse_intensity)
+		Model.shader:send('lights['.. c_index ..'].specular_intensity', light.specular_intensity)
 	end
 
 	Model.shader:send('lights_count', #lights)

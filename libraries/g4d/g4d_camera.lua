@@ -135,11 +135,10 @@ function Camera:look_in_dir(yaw, pitch)
 end
 
 function Camera:update_view_matrix(dt)
-	self.shader:send('view_matrix', Matrices:get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
+	self.shader:send('camera.view_matrix', Matrices:get_view_matrix({self.x, self.y, self.z}, {self.tx, self.ty, self.tz}, self.down))
 
-
-	if self.shader:hasUniform('camera_position') then 
-		self.shader:send('camera_position', {self.x, self.y, self.z, 1})
+	if self.shader:hasUniform('camera.position') then 
+		self.shader:send('camera.position', {self.x, self.y, self.z, 1})
 	end
 end
 
@@ -151,7 +150,7 @@ function Camera:update_projection_matrix(type)
 		matrix = Matrices:get_orthographic_matrix(self.fov, size or 5, self.near_clip, self.far_clip, self.aspect_ratio)
 	end
 
-	self.shader:send('projection_matrix', matrix)
+	self.shader:send('camera.projection_matrix', matrix)
 end
 
 return Camera:new()
