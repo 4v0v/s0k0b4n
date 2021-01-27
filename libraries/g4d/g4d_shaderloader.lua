@@ -1,1 +1,0 @@
-return love.graphics.newShader(G4D_PATH .. '/g4d_shader.glsl')

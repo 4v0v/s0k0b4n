@@ -25,7 +25,6 @@ function love.run()
 		lg.setLineStyle('rough')
 		lk.setKeyRepeat(true)
 		
-		g4d     = require('libraries/g4d')
 		Class   = require('libraries/class')
 		Camera  = require('libraries/camera')
 		Timer   = require('libraries/timer')
@@ -43,7 +42,7 @@ function love.run()
 		game:add_scene('menu', Menu_scene())
 		game:add_scene('play', Play_scene())
 
-		game:change_scene('play')
+		game:change_scene('menu')
 	end
 
 	function love.update(dt)
