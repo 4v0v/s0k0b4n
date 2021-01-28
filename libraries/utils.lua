@@ -139,7 +139,7 @@ function print(...)
 		if type(v) == 'table' then
 			local s = 0 for _ in pairs(v) do s = s + 1 end 
 			table.insert(tables, {key = k, size = s}) 
-		elseif type(v) == 'function' then 
+		elseif type(v) == 'function' then
 			table.insert(functions, {key = k})
 		else
 			table.insert(others, {key = k, value = v})

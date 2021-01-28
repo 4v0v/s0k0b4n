@@ -111,24 +111,24 @@ function Play_scene:construct_level()
 
 	@.level:foreach(fn(grid, i, j, value) 
 		if   value == 'w' then
-			table.insert(@.walls, {i, j})
+			insert(@.walls, {i, j})
 			
 		elif value == 'p' then
 			@.player = {i, j}
 
 		elif value == 'b' then
-			table.insert(@.boxes, {i, j})
+			insert(@.boxes, {i, j})
 
 		elif value == 'u' then
-			table.insert(@.pads, {i, j})
+			insert(@.pads, {i, j})
 
 		elif value == 'o' then
-			table.insert(@.boxes, {i, j})
-			table.insert(@.pads, {i, j})
+			insert(@.boxes, {i, j})
+			insert(@.pads, {i, j})
 
 		elif value == 'P' then
 			@.player = {i, j}
-			table.insert(@.pads, {i, j})
+			insert(@.pads, {i, j})
 		end
 	end)
 end
