@@ -97,7 +97,6 @@ function Play_scene:draw_inside_camera_fg()
 		end
 
 		lg.setColor(1, 1, 1)
-
 	end)
 end
 
