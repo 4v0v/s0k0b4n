@@ -124,18 +124,18 @@ function random_key(t)
 end
 
 local old_print = print
-function print(t)
-
+function print(...)
+	local args = {...}
 	-- check if table has __tostring metamethod
-	if type(t) == 'table' then 
-		local meta = getmetatable(t)
-		if meta and meta.__tostring then old_print(t) return end
+	if type(args[1]) == 'table' then 
+		local meta = getmetatable(args[1])
+		if meta and meta.__tostring then old_print(args[1]) return end
 	else 
-		old_print(t) return
+		old_print(...) return
 	end
 
 	local tables, functions, others = {}, {}, {}
-	for k, v in pairs(t) do 
+	for k, v in pairs(args[1]) do 
 		if type(v) == 'table' then
 			local s = 0 for _ in pairs(v) do s = s + 1 end 
 			table.insert(tables, {key = k, size = s}) 

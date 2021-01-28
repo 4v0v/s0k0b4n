@@ -63,7 +63,7 @@ function Camera:get_zoom()
 	return self.cam.s, self.cam.target_s 
 end
 
-function Camera:setlerpness(sv) 
+function Camera:set_lerpness(sv) 
 	self.cam.sv = sv 
 end
 
