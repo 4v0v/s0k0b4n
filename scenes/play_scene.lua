@@ -71,33 +71,25 @@ function Play_scene:update(dt)
 end
 
 function Play_scene:draw_inside_camera_fg()
-	@.level:foreach(fn(grid, i, j, value) 
-		if   value == 'w'then
-			lg.setColor(.5, .5, .5)
-			lg.rectangle('fill', i*20, j*20, 20, 20)
-		elif value == 'p' then
-			lg.setColor(1, 1, 0)
-			lg.rectangle('fill', i*20, j*20, 20, 20)
-		elif value == 'b' then
-			lg.setColor(.6, .8, .5)
-			lg.rectangle('fill', i*20, j*20, 20, 20)
-		elif value == 'u' then
-			lg.setColor(1, 0, 0)
-			lg.rectangle('line', i*20, j*20, 20, 20)
-		elif value == 'o' then
-			lg.setColor(.6, .8, .5)
-			lg.rectangle('fill', i*20, j*20, 20, 20)
-			lg.setColor(.8, .2, .2)
-			lg.rectangle('line', i*20, j*20, 20, 20)
-		elif value == 'P' then
-			lg.setColor(1, 1, 0)
-			lg.rectangle('fill', i*20, j*20, 20, 20)
-			lg.setColor(.8, .2, .2)
-			lg.rectangle('line', i*20, j*20, 20, 20)
-		end
+	for @.walls do 
+		lg.setColor(.5, .5, .5)
+		lg.rectangle('fill', it[1]*20, it[2]*20, 20, 20)
+	end
 
-		lg.setColor(1, 1, 1)
-	end)
+	for @.boxes do 
+		lg.setColor(.6, .8, .5)
+		lg.rectangle('fill', it[1]*20, it[2]*20, 20, 20)
+	end
+
+	lg.setColor(1, 1, 0)
+	lg.rectangle('fill', @.player[1]*20, @.player[2]*20, 20, 20)
+
+	for @.pads do 
+		lg.setColor(1, 0, 0)
+		lg.rectangle('line', it[1]*20, it[2]*20, 20, 20)
+	end
+
+	lg.setColor(1, 1, 1)
 end
 
 function Play_scene:construct_level()
@@ -172,9 +164,15 @@ function Play_scene:update_level()
 end
 
 function Play_scene:move(dir)
+	if @.timer:get('move_player') ||
+		@.timer:get('box_player_x')  ||
+		@.timer:get('box_player_y') then 
+		return 
+	end
+
 	local target
-	local target_block
 	local target_next
+	local target_block
 	local target_next_block
 
 	if   dir == 'left'  then 
@@ -201,6 +199,7 @@ function Play_scene:move(dir)
 	if   target_block == nil || target_block == 'u' then 
 		@.player[1] = target[1]
 		@.player[2] = target[2]
+
 
 	-- wall
 	elif target_block == 'w' then
