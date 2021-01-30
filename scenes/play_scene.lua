@@ -68,6 +68,25 @@ function Play_scene:update(dt)
 	if pressed('z') || pressed('up')    then @:move('up')    end
 	if pressed('s') || pressed('down')  then @:move('down')  end
 	if pressed('r')                     then @:construct_level() end -- reset level
+
+
+	--visual lerp
+	if @.player[3] != @.player[1] then 
+		@.player[3] = lerp(@.player[3], @.player[1], 20 *dt)
+	end
+	if @.player[4] != @.player[2] then 
+		@.player[4] = lerp(@.player[4], @.player[2], 20 *dt)
+	end
+
+	for @.boxes do
+		if it[3] != it[1] then 
+			it[3] = lerp(it[3], it[1], 20 * dt)
+		end
+			
+		if it[4] != it[2] then 
+			it[4] = lerp(it[4], it[2], 20 * dt)
+		end
+	end
 end
 
 function Play_scene:draw_inside_camera_fg()
@@ -78,11 +97,11 @@ function Play_scene:draw_inside_camera_fg()
 
 	for @.boxes do 
 		lg.setColor(.6, .8, .5)
-		lg.rectangle('fill', it[1]*20, it[2]*20, 20, 20)
+		lg.rectangle('fill', it[3]*20, it[4]*20, 20, 20)
 	end
 
 	lg.setColor(1, 1, 0)
-	lg.rectangle('fill', @.player[1]*20, @.player[2]*20, 20, 20)
+	lg.rectangle('fill', @.player[3]*20, @.player[4]*20, 20, 20)
 
 	for @.pads do 
 		lg.setColor(1, 0, 0)
@@ -105,10 +124,10 @@ function Play_scene:construct_level()
 			insert(@.walls, {i, j})
 			
 		elif value == 'p' then
-			@.player = {i, j}
+			@.player = {i, j, i, j}
 
 		elif value == 'b' then
-			insert(@.boxes, {i, j})
+			insert(@.boxes, {i, j, i, j})
 
 		elif value == 'u' then
 			insert(@.pads, {i, j})
@@ -200,20 +219,23 @@ function Play_scene:move(dir)
 		@.player[1] = target[1]
 		@.player[2] = target[2]
 
-
 	-- wall
 	elif target_block == 'w' then
-		-- can't move
+		@.player[3] = target[1]
+		@.player[4] = target[2]
 
 	-- box || pad w/ box
 	elif target_block == 'o' || target_block == 'b' then
 		local box = (fn() for @.boxes do if it[1] == target[1] && it[2] == target[2] then return it end end end)()
 
 		if target_next_block == nil || target_next_block == 'u' then 
-			box[1]      = target_next[1]
-			box[2]      = target_next[2]
 			@.player[1] = target[1]
 			@.player[2] = target[2]
+			box[1]      = target_next[1]
+			box[2]      = target_next[2]
+		else
+			@.player[3] = target[1]
+			@.player[4] = target[2]
 		end
 	end
 	
