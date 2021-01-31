@@ -11,7 +11,7 @@ if type(jit) == 'table' and jit.status() then
 	end
 end
 
-local Vec2 = {}
+local Vec2 = {} 
 
 function Vec2.new(x, y)
 	if Vec2.is_vec2(x) then 
