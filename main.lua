@@ -69,10 +69,11 @@ function love.run()
 end
 
 function load_game()
-	add_scene('menu', Menu_scene())
-	add_scene('play', Play_scene())
+	add_scene('menu'  , Menu_scene())
+	add_scene('editor', Editor_scene())
+	add_scene('play'  , Play_scene())
 
-	change_scene('play')
+	change_scene('menu')
 end
 
 function add_scene(id, scene)
