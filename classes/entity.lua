@@ -1,7 +1,7 @@
 Entity = Class:extend('Entity')
 
 function Entity:new(opts)
-	@.timer   = Timer()
+	@.trigger = Trigger()
 	@.dead    = false
 	@.scene   = {}
 	@.id      = ''
@@ -17,7 +17,7 @@ function Entity:draw()
 end
 
 function Entity:update(dt) 
-	@.timer:update(dt) 
+	@.trigger:update(dt) 
 end
 
 function Entity:is_type(...) 
@@ -33,7 +33,7 @@ function Entity:is_type(...)
 end
 
 function Entity:kill()
-	@.timer:destroy()
+	@.trigger:destroy()
 	@.dead  = true
 	@.scene = nil
 end
@@ -42,8 +42,11 @@ function Entity:set_state(state)
 	@.state = state
 end
 
-function Entity:is_state(state)
-	return @.state == state
+function Entity:is_state(...)
+	ifor {...} do
+		if @.state == it then return true end
+	end
+	return false
 end
 
 function Entity:get_state()
@@ -51,43 +54,43 @@ function Entity:get_state()
 end
 
 function Entity:after(...)
-	@.timer:after(...)
+	@.trigger:after(...)
 end
 
 function Entity:tween(...)
-	@.timer:tween(...)
+	@.trigger:tween(...)
 end
 
 function Entity:every(...)
-	@.timer:every(...)
+	@.trigger:every(...)
 end
 
 function Entity:after_true(...)
-	@.timer:after_true(...)
+	@.trigger:after_true(...)
 end
 
 function Entity:every_true(...)
-	@.timer:every_true(...)
+	@.trigger:every_true(...)
 end
 
 function Entity:during_true(...)
-	@.timer:during_true(...)
+	@.trigger:during_true(...)
 end
 
 function Entity:every_immediate(...)
-	@.timer:every_immediate(...)
+	@.trigger:every_immediate(...)
 end
 
 function Entity:during(...)
-	@.timer:during(...)
+	@.trigger:during(...)
 end
 
 function Entity:once(...)
-	@.timer:once(...)
+	@.trigger:once(...)
 end
 
 function Entity:always(...)
-	@.timer:always(...)
+	@.trigger:always(...)
 end
 
 function Entity:lerp_to(target, speed)

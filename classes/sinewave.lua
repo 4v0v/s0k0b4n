@@ -1,19 +1,26 @@
 Sinewave = Class:extend('Sinewave')
 
-function Sinewave:new(value, speed, amplitude)
-	@.initial = value     or 0
-	@.speed   = speed     or 1
-	@.amp     = amplitude or 1
-	@.time    = 0
-	@.sine    = 0
-	@.playing = true
+function Sinewave:new(value, amplitude, duration)
+	@.initial   = value     or 0
+	@.amplitude = amplitude or 1
+	@.duration  = duration  or 1
+	@.timer     = 0
+	@.sin       = 0
+	@.cos       = 0
+	@.playing   = true
 end
 
 function Sinewave:update(dt)
 	if !@.playing then return end
-	@.time += dt
-	@.sin = @.amp * math.sin(@.time * @.speed)
-	@.cos = @.amp * math.cos(@.time * @.speed)
+	
+	@.timer += dt
+	@.timer %= @.duration
+
+	local percent_of_timer = @.timer / @.duration
+	local part_of_radius   = 2*math.pi * percent_of_timer
+
+	@.sin = @.amplitude * math.sin(part_of_radius)
+	@.cos = @.amplitude * math.cos(part_of_radius)
 end
 
 function Sinewave:stop()

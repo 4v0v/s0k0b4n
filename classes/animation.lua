@@ -1,13 +1,21 @@
 AnimationFrames = Class:extend('AnimationFrames')
 
 function AnimationFrames:new(image, frame_w, frame_h, ox, oy, frames_list)
+	if type(image) == 'string' then 
+		image = lg.newImage(image)
+	end
+
+	if type(frames_list) == 'string' then 
+		frames_list = @:convert_frames_string(frames_list)
+	end
+
   @.image    = image
 	@.frame_w  = frame_w
 	@.frame_h  = frame_h
 	@.ox       = ox or 0
 	@.oy       = oy or 0
 	@.frames   = map(frames_list, fn(frame)
-		return love.graphics.newQuad(
+		return lg.newQuad(
 			(frame[1]-1) * @.frame_w + @.ox, 
 			(frame[2]-1) * @.frame_h + @.oy, 
 			@.frame_w, @.frame_h, 
@@ -17,7 +25,7 @@ function AnimationFrames:new(image, frame_w, frame_h, ox, oy, frames_list)
 end
 
 function AnimationFrames:draw(frame, x, y, r, sx, sy, ox, oy)
-  love.graphics.draw(
+  lg.draw(
 		@.image, 
 		@.frames[frame], 
 		x, y, r or 0, sx or 1, sy or sx or 1, 
@@ -26,41 +34,52 @@ function AnimationFrames:draw(frame, x, y, r, sx, sy, ox, oy)
 	)
 end
 
+function AnimationFrames:convert_frames_string(str)
+	local tbl = {}
+
+	str:gsub("([%d]+)-([%d]+)", fn(x, y) 
+		insert(tbl, {tonumber(x), tonumber(y)}) 
+	end)
+
+	return tbl
+end
+
 Animation =  Class:extend('Animation')
 
 function Animation:new(delay, frames, mode, actions)
   @.delay   = delay
-  @.frames  = frames
+  @.anim_frames  = frames
   @.size    = #frames.frames
   @.mode    = mode or 'loop'
   @.actions = actions
 	@.pause   = false
   @.timer   = 0
-  @.frame   = 1
+  @.current_frame = 1
   @.dir     = 1
 end
 
 function Animation:update(dt)
-	
 	if @.pause then return end
 	@.timer += dt
 	
   local delay = @.delay
-	if type(@.delay) == 'table' then delay = @.delay[@.frame] end
+	if type(@.delay) == 'table' then delay = @.delay[@.current_frame] end
 	
 	if @.timer > delay then
-		local action = get(@, {'actions', @.frame})
+		local action = get(@, {'actions', @.current_frame})
 
-    @.frame += @.dir
-		if @.frame > @.size || @.frame < 1 then
-      if @.mode == 'once' then
-        @.frame = @.size
+    @.current_frame += @.dir
+		if @.current_frame > @.size || @.current_frame < 1 then
+      if   @.mode == 'once' then
+        @.current_frame = @.size
 				@.pause = true
+
       elif @.mode == 'loop' then
-				@.frame = 1
+				@.current_frame = 1
+
       elif @.mode == 'bounce' then
         @.dir = -@.dir
-        @.frame += 2 * @.dir
+        @.current_frame += 2 * @.dir
 			end
 		end
 		if action then action() end
@@ -69,24 +88,28 @@ function Animation:update(dt)
   end
 end
 
-function Animation:draw(x, y, r, sx, sy, ox, oy, color)
-  @.frames:draw(@.frame, x, y, r, sx, sy, ox, oy, color)
+function Animation:draw(x, y, r, sx, sy, ox, oy)
+	@.anim_frames:draw(@.current_frame, x, y, r, sx, sy, ox, oy)
 end
 
 function Animation:reset()
-	@.frame = 1
+	@.current_frame = 1
 	@.timer = 0
 	@.dir   = 1
 	@.pause = false
 end
 
 function Animation:set_frame(frame)
-	@.frame = frame
+	@.current_frame = frame
 	@.timer = 0
 end
 
 function Animation:set_actions(actions)
 	@.actions = actions
+end
+
+function Animation:set_delay(delay)
+	@.delay = delay
 end
 
 function Animation:clone()

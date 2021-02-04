@@ -1,4 +1,4 @@
-local Class = {}
+Class = {}
 
 function Class:extend(name)
 	local obj = {}
@@ -19,5 +19,3 @@ function Class:__call(...)
 	obj:new(...) 
 	return obj 
 end
-
-return Class

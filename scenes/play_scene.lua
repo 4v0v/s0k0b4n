@@ -61,7 +61,7 @@ end
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
-	if pressed('escape') then game:change_scene_with_transition('menu') end
+	if pressed('escape') then change_scene_with_transition('menu') end
 
 	if pressed('q') || pressed('left')  then @:move('left')  end
 	if pressed('d') || pressed('right') then @:move('right') end
@@ -183,9 +183,9 @@ function Play_scene:update_level()
 end
 
 function Play_scene:move(dir)
-	if @.timer:get('move_player') ||
-		@.timer:get('box_player_x')  ||
-		@.timer:get('box_player_y') then 
+	if @.trigger:get('move_player') ||
+		@.trigger:get('box_player_x')  ||
+		@.trigger:get('box_player_y') then 
 		return 
 	end
 

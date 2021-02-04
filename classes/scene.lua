@@ -2,7 +2,7 @@ Scene = Class:extend('Scene')
 
 function Scene:new()
 	@.id     = ''
-	@.timer  = Timer()
+	@.trigger  = Trigger()
 	@.camera = Camera()
 	@._queue = {}
 	@._ents  = {}
@@ -11,7 +11,7 @@ function Scene:new()
 end
 
 function Scene:update(dt)
-	@.timer:update(dt)
+	@.trigger:update(dt)
 	@.camera:update(dt)
 
 	-- update entitites
@@ -161,43 +161,43 @@ function Scene:exit()
 end
 
 function Scene:after(...)
-	@.timer:after(...)
+	@.trigger:after(...)
 end
 
 function Scene:after_true(...)
-	@.timer:after_true(...)
+	@.trigger:after_true(...)
 end
 
 function Scene:every_true(...)
-	@.timer:every_true(...)
+	@.trigger:every_true(...)
 end
 
 function Scene:during_true(...)
-	@.timer:during_true(...)
+	@.trigger:during_true(...)
 end
 
 function Scene:tween(...)
-	@.timer:tween(...)
+	@.trigger:tween(...)
 end
 
 function Scene:every(...)
-	@.timer:every(...)
+	@.trigger:every(...)
 end
 
 function Scene:every_immediate(...)
-	@.timer:every_immediate(...)
+	@.trigger:every_immediate(...)
 end
 
 function Scene:during(...)
-	@.timer:during(...)
+	@.trigger:during(...)
 end
 
 function Scene:once(...)
-	@.timer:once(...)
+	@.trigger:once(...)
 end
 
 function Scene:always(...)
-	@.timer:always(...)
+	@.trigger:always(...)
 end
 
 function Scene:zoom(...)

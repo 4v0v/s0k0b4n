@@ -1,19 +1,18 @@
-local Timer = {}
 
 local _t = {
-	out     = function(f) return function(x, ...) return 1 - f(1-x, ...) end end,
-	chain   = function(f1, f2) return function(x, ...) return (x < 0.5 and f1(2*x, ...) or 1 + f2(2*x-1, ...))*0.5 end end,
-	linear  = function(x) return x end,
-	quad    = function(x) return x*x end,
-	cubic   = function(x) return x*x*x end,
-	quart   = function(x) return x*x*x*x end,
-	quint   = function(x) return x*x*x*x*x end,
-	sine    = function(x) return 1-math.cos(x*math.pi/2) end,
-	expo    = function(x) return 2^(10*(x-1)) end,
-	circ    = function(x) return 1-math.sqrt(1-x*x) end,
-	back    = function(x, b) b = b or 1.70158; return x*x*((b+1)*x - b) end, --bounciness
-	bounce  = function(x) local a, b = 7.5625, 1/2.75; return math.min(a*x^2, a*(x-1.5*b)^2 + 0.75, a*(x-2.25*b)^2 + 0.9375, a*(x-2.625*b)^2 + 0.984375) end,
-	elastic = function(x, a, p) a, p = a and math.max(1, a) or 1, p or 0.3; return (-a*math.sin(2*math.pi/p*(x-1) - math.asin(1/a)))*2^(10*(x-1)) end -- amp, period
+	out     = fn(f) return fn(x, ...) return 1 - f(1-x, ...) end end,
+	chain   = fn(f1, f2) return fn(x, ...) return (x < 0.5 and f1(2*x, ...) or 1 + f2(2*x-1, ...))*0.5 end end,
+	linear  = fn(x) return x end,
+	quad    = fn(x) return x*x end,
+	cubic   = fn(x) return x*x*x end,
+	quart   = fn(x) return x*x*x*x end,
+	quint   = fn(x) return x*x*x*x*x end,
+	sine    = fn(x) return 1-math.cos(x*math.pi/2) end,
+	expo    = fn(x) return 2^(10*(x-1)) end,
+	circ    = fn(x) return 1-math.sqrt(1-x*x) end,
+	back    = fn(x, b) b = b or 1.70158; return x*x*((b+1)*x - b) end, --bounciness
+	bounce  = fn(x) local a, b = 7.5625, 1/2.75; return math.min(a*x^2, a*(x-1.5*b)^2 + 0.75, a*(x-2.25*b)^2 + 0.9375, a*(x-2.625*b)^2 + 0.984375) end,
+	elastic = fn(x, a, p) a, p = a and math.max(1, a) or 1, p or 0.3; return (-a*math.sin(2*math.pi/p*(x-1) - math.asin(1/a)))*2^(10*(x-1)) end -- amp, period
 }
 
 local function _random_time(time) 
@@ -22,10 +21,10 @@ local function _random_time(time)
 end
 
 local function _tween(f, ...)
-	if     f:find('linear')    then return _t.linear(...)
-	elseif f:find('in%-out%-') then return _t.chain(_t[f:sub(8, -1)], _t.out(_t[f:sub(8, -1)]))(...) 
-	elseif f:find('in%-')      then return _t[f:sub(4, -1)](...)
-	elseif f:find('out%-')     then return _t.out(_t[f:sub(5, -1)])(...) end
+	if   f:find('linear')    then return _t.linear(...)
+	elif f:find('in%-out%-') then return _t.chain(_t[f:sub(8, -1)], _t.out(_t[f:sub(8, -1)]))(...) 
+	elif f:find('in%-')      then return _t[f:sub(4, -1)](...)
+	elif f:find('out%-')     then return _t.out(_t[f:sub(5, -1)])(...) end
 end
 
 local function _calc_tween(subject, target, out)
@@ -36,27 +35,27 @@ local function _calc_tween(subject, target, out)
 	return out
 end
 
-function Timer:new()
-	local obj = {}
-		obj.timers = {}
-	return setmetatable(obj, {__index = Timer})
+Trigger = Class:extend('Trigger')
+
+function Trigger:new()
+	@.triggers = {}
 end
 
-function Timer:update(dt)
-  for tag, v in pairs(self.timers) do
+function Trigger:update(dt)
+  for tag, v in pairs(@.triggers) do
 		if not v.active then goto continue end
 		v.t = v.t + dt
 
 		if v.type == 'after' then 
 			if v.t >= v.total then 
 				v.action()
-				self:remove(tag)
+				@:remove(tag)
 			end
 
 		elseif v.type == 'after_true' then
 			if v.cond() then 
 				v.action()
-				self:remove(tag) 
+				@:remove(tag) 
 			end
 
 		elseif v.type == 'every_true' then
@@ -66,7 +65,7 @@ function Timer:update(dt)
 				v.c = v.c + 1
 				if v.c == v.count then 
 					v.after()
-					self:remove(tag)
+					@:remove(tag)
 				end
 			elseif not v.cond() and not v.can_do_action then
 				v.can_do_action = true
@@ -78,14 +77,14 @@ function Timer:update(dt)
 				v.action()
 			elseif not v.cond() and not v.can_do_action then
 				v.after()
-				self:remove(tag)
+				@:remove(tag)
 			end
 
 		elseif v.type == 'during' then
 			v.action()
 			if v.t >= v.total then 
 				v.after()
-				self:remove(tag) 
+				@:remove(tag) 
 			end
 
 		elseif v.type == 'every' then  
@@ -96,7 +95,7 @@ function Timer:update(dt)
 				v.total = _random_time(v.initial_time)
 				if v.c == v.count then 
 					v.after()
-					self:remove(tag)
+					@:remove(tag)
 				end
 			end
 
@@ -114,7 +113,7 @@ function Timer:update(dt)
 					ref[key] = v.target[key] 
 				end
 				v.after()
-				self:remove(tag)
+				@:remove(tag)
 			end
 		end
 		
@@ -122,24 +121,24 @@ function Timer:update(dt)
 	end
 end
 
-function Timer:after(time, action, tag)
+function Trigger:after(time, action, tag)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = {
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = {
 		type   = 'after', 
 		active = true,
 		t      = 0, 
 		total  = _random_time(time), 
 		action = action,
 	}
-	return self.timers[tag]
+	return @.triggers[tag]
 end
 
-function Timer:every_immediate(time, action, count, tag, after)
+function Trigger:every_immediate(time, action, count, tag, after)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
+	if @.triggers[tag] then return false end
 	local total = _random_time(time)
-	self.timers[tag] = {
+	@.triggers[tag] = {
 		type      = 'every', 
 		active    = true,
 		total     = total, 
@@ -150,13 +149,13 @@ function Timer:every_immediate(time, action, count, tag, after)
 		action    = action, 
 		after     = after or function() end,
 	}
-	return self.timers[tag]
+	return @.triggers[tag]
 end
 
-function Timer:every(time, action, count, tag, after)
+function Trigger:every(time, action, count, tag, after)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = {
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = {
 		type      = 'every', 
 		active    = true,
 		total     = _random_time(time), 
@@ -167,13 +166,13 @@ function Timer:every(time, action, count, tag, after)
 		action    = action, 
 		after     = after or function() end,
 	}
-	return self.timers[tag]
+	return @.triggers[tag]
 end
 
-function Timer:during(time, action, tag, after)
+function Trigger:during(time, action, tag, after)
 	local tag = tag or uid()
-  if self.timers[tag] then return false end
-	self.timers[tag] = {
+  if @.triggers[tag] then return false end
+	@.triggers[tag] = {
 		type    = 'during', 
 		active  = true,
 		t       = 0,
@@ -181,13 +180,13 @@ function Timer:during(time, action, tag, after)
 		action  = action, 
 		after   = after or function() end,
 	}
-	return self.timers[tag]
+	return @.triggers[tag]
 end
 
-function Timer:tween(time, subject, target, method, tag, after)
+function Trigger:tween(time, subject, target, method, tag, after)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = { 
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = { 
 		type    = 'tween', 
 		active  = true,
 		t       = 0,
@@ -199,13 +198,13 @@ function Timer:tween(time, subject, target, method, tag, after)
 		payload = _calc_tween(subject, target, {}),
 		after   = after or function() end, 
 	}
-	return self.timers[tag]
+	return @.triggers[tag]
 end
 
-function Timer:after_true(cond, action, tag)
+function Trigger:after_true(cond, action, tag)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = { 
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = { 
 		type   = 'after_true',
 		t      = 0,
 		active = true,
@@ -214,10 +213,10 @@ function Timer:after_true(cond, action, tag)
 	}
 end
 
-function Timer:every_true(cond, action, count, tag, after)
+function Trigger:every_true(cond, action, count, tag, after)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = { 
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = { 
 		type   = 'every_true',
 		t      = 0,
 		active = true,
@@ -230,10 +229,10 @@ function Timer:every_true(cond, action, count, tag, after)
 	}
 end
 
-function Timer:during_true(cond, action, tag, after)
+function Trigger:during_true(cond, action, tag, after)
 	local tag = tag or uid()
-	if self.timers[tag] then return false end
-	self.timers[tag] = { 
+	if @.triggers[tag] then return false end
+	@.triggers[tag] = { 
 		type   = 'during_true',
 		t      = 0,
 		active = true,
@@ -244,34 +243,32 @@ function Timer:during_true(cond, action, tag, after)
 	}
 end
 
-function Timer:once(action, tag)
-	return self:every_immediate(math.huge, action, _, tag) 
+function Trigger:once(action, tag)
+	return @:every_immediate(math.huge, action, _, tag) 
 end
 
-function Timer:always(action, tag)
-	return self:during(math.huge, action, tag) 
+function Trigger:always(action, tag)
+	return @:during(math.huge, action, tag) 
 end
 
-function Timer:get(tag) 
-	return self.timers[tag] 
+function Trigger:get(tag) 
+	return @.triggers[tag] 
 end
 
-function Timer:pause(tag) 
-	self.timers[tag].active = false
+function Trigger:pause(tag) 
+	@.triggers[tag].active = false
 end
 
-function Timer:play(tag) 
-	self.timers[tag].active = true 
+function Trigger:play(tag) 
+	@.triggers[tag].active = true 
 end
 
-function Timer:remove(tag)
-	local result = not not self.timers[tag]
-	self.timers[tag] = nil
+function Trigger:remove(tag)
+	local result = not not @.triggers[tag]
+	@.triggers[tag] = nil
 	return result
 end
 
-function Timer:destroy() 
-	self.timers = {} 
+function Trigger:destroy() 
+	@.triggers = {} 
 end
-
-return setmetatable({}, {__call = Timer.new})

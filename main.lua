@@ -1,88 +1,116 @@
 function love.run()
-	lg, la, lm, lk        = love.graphics, love.audio, love.mouse, love.keyboard
-	local _INPUT          = {_CUR = {}, _PRE = {}}
-	local _ACCUMULATOR    = 0
-	local _FIXED_TIMESTEP = 1/60
+	lg, la, lm, lk, lt = love.graphics, love.audio, love.mouse, love.keyboard, love.timer
 
-	function pressed(key) 
-		return _INPUT._CUR[key] and not _INPUT._PRE[key] 
-	end
+	lg.setDefaultFilter('nearest', 'nearest')
+	lg.setLineStyle('rough')
+	lk.setKeyRepeat(true)
 	
-	function released(key)
-		return _INPUT._PRE[key] and not _INPUT._CUR[key] 
-	end
+	Physics = require('libraries/physics')
+	Vec2    = require('libraries/vec2')
 
-	function down(key) 
-		if key=='m_1'or key=='m_2'or key=='m_3' then 
-			return lm.isDown(tonumber(key:sub(7))) 
-		else 
-			return lk.isDown(key) 
-		end 
-	end
+	require('class')
+	require('utils')
+	require('monkey')
 
-	function love.load()
-		lg.setDefaultFilter('nearest', 'nearest')
-		lg.setLineStyle('rough')
-		lk.setKeyRepeat(true)
-		
-		Class   = require('libraries/class')
-		Camera  = require('libraries/camera')
-		Timer   = require('libraries/timer')
-		Vec2    = require('libraries/vector')
-		Physics = require('libraries/physics')
+	require_all('classes')
+	require_all('scenes')
+	require_all('entities', {recursive = true})
 
-		require('libraries/utils')
-		require('libraries/monkey')
+	GAME = {
+		current_scene_id  = '',
+		trigger     = Trigger(),
+		scenes      = {},
+		bg_color    = {r = 0, g = 0, b = 0, a = 0},
+		input       = {current = {}, previous = {}},
+		accumulator = 0,
+		fixed_dt    = 1/60,
+	}
 
-		require_all('classes')
-		require_all('scenes')
-		require_all('entities', {recursive = true})
-
-		game = Game()
-		game:add_scene('menu', Menu_scene())
-		game:add_scene('play', Play_scene())
-
-		game:change_scene('play')
-	end
-
-	function love.update(dt)
-		game:update(dt)
-	end
-	
-	function love.draw()
-		game:draw()
-	end
-
-	function love.handle(name, a, b, c, d, e, f)
-		if name == 'mousepressed'  then _INPUT._CUR['m_'.. c] = true end
-		if name == 'keypressed'    then _INPUT._CUR[a] = true if c then _INPUT._PRE[a] = false end end -- c => isRepeat
-		if name == 'mousereleased' then _INPUT._CUR['m_'.. c] = false end
-		if name == 'keyreleased'   then _INPUT._CUR[a] = false end
-		game:handle(name, a,b,c,d,e,f)
-		love.handlers[name](a,b,c,d,e,f)
-	end
-
-	love.load()
-	love.timer.step()
+	load_game()
+	lt.step()
 
 	return function()
 		love.event.pump()
-		for name, a,b,c,d,e,f in love.event.poll() do
-			if name == 'quit' then return 0 end
-			love.handle(name, a,b,c,d,e,f)
+		for name, a, b, c, d, e, f in love.event.poll() do
+			if name == 'quit'          then return 0 end
+			if name == 'mousepressed'  then GAME.input.current['m_'.. c] = true end
+			if name == 'mousereleased' then GAME.input.current['m_'.. c] = false end
+			if name == 'keypressed'    then GAME.input.current[a]        = true if c then GAME.input.previous[a] = false end end -- c => isRepeat
+			if name == 'keyreleased'   then GAME.input.current[a]        = false end
+			if GAME.current_scene_id ~= '' and GAME.scenes[GAME.current_scene_id][name] then
+				GAME.scenes[GAME.current_scene_id][name](GAME.scenes[GAME.current_scene_id], a, b, c, d, e, f)
+			end
+			love.handlers[name](a, b, c, d, e, f)
 		end
 
-		_ACCUMULATOR = _ACCUMULATOR + love.timer.step()
-		while _ACCUMULATOR >= _FIXED_TIMESTEP do
-			love.update(_FIXED_TIMESTEP)
-			for k,v in pairs(_INPUT._CUR) do _INPUT._PRE[k] = v end -- input update
-			_ACCUMULATOR = _ACCUMULATOR - _FIXED_TIMESTEP
+		GAME.accumulator = GAME.accumulator + lt.step()
+		while GAME.accumulator >= GAME.fixed_dt do
+			GAME.trigger:update(GAME.fixed_dt)
+			if GAME.current_scene_id ~= '' then 
+				GAME.scenes[GAME.current_scene_id]:update(GAME.fixed_dt)
+			end
+			for k, v in pairs(GAME.input.current) do GAME.input.previous[k] = v end
+			GAME.accumulator = GAME.accumulator - GAME.fixed_dt
 		end
 
 		lg.origin()
 		lg.clear(lg.getBackgroundColor())
-		love.draw()
+		if GAME.current_scene_id ~= '' then 
+			GAME.scenes[GAME.current_scene_id]:draw()
+		end
+		local _color = {lg.getColor()}
+		lg.setColor(GAME.bg_color.r, GAME.bg_color.g, GAME.bg_color.b, GAME.bg_color.a)
+		lg.rectangle("fill", 0, 0, lg.getWidth(), lg.getHeight())
+		lg.setColor(_color)
 		lg.present()
-		love.timer.sleep(0.001)
+
+		lt.sleep(0.001)
 	end
+end
+
+function load_game()
+	add_scene('menu', Menu_scene())
+	add_scene('play', Play_scene())
+
+	change_scene('play')
+end
+
+function add_scene(id, scene)
+	scene.id        = id
+	GAME.scenes[id] = scene
+end
+
+function change_scene(name, ...)
+	local args = {...}
+	local previous = GAME.current_scene_id
+	if GAME.current_scene_id ~= '' then GAME.scenes[GAME.current_scene_id]:exit() end
+	GAME.current_scene_id = name
+	GAME.scenes[GAME.current_scene_id]:enter(previous, args)
+end
+
+function change_scene_with_transition(name, ...)
+	local args = {...}
+	GAME.trigger:tween(.4, GAME.bg_color, {a = 1}, 'in-cubic', 'transition_fade_in', function() 
+		local previous = GAME.current_scene_id
+		if GAME.current_scene_id ~= '' then GAME.scenes[GAME.current_scene_id]:exit() end
+		GAME.current_scene_id = name
+		GAME.scenes[GAME.current_scene_id]:enter(previous, args)
+		GAME.trigger:tween(.4, GAME.bg_color, {a = 0}, 'out-cubic', 'transition_fade_out')
+	end)
+end
+
+function pressed(key)	
+	return GAME.input.current[key] and not GAME.input.previous[key]
+end
+
+function released(key)
+	return GAME.input.previous[key] and not GAME.input.current[key] 
+end
+
+function down(key) 
+	if key=='m_1'or key=='m_2'or key=='m_3' then 
+		return lm.isDown(tonumber(key:sub(3))) 
+	else 
+		return lk.isDown(key) 
+	end 
 end
