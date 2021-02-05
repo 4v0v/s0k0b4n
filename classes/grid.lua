@@ -25,12 +25,27 @@ function Grid:clone()
 end
 
 function Grid:get(x, y)
+	if type(x) == 'table' then
+		if x.x then 
+			x, y = x.x, x.y
+		else
+			x, y = x[1], x[2]
+		end
+	end
   if !@:is_oob(x, y) then
     return @.grid[@.width*(y-1) + x]
   end
 end
 
 function Grid:set(x, y, value)
+	if type(x) == 'table' then
+		if x.x then 
+			x, y, value = x.x, x.y, y
+		else
+			x, y, value = x[1], x[2], y
+		end
+	end
+
   if !@:is_oob(x, y) then
     @.grid[@.width*(y-1) + x] = value
   end
@@ -49,13 +64,25 @@ function Grid:fill(value)
 end
 
 function Grid:to_table() 
-  local t = {}
-  for j = 1, @.height do
-    for i = 1, @.width do
-      insert(t, {i, j, @:get(i, j)}) 
-    end
-  end
-  return t -- {{x, y, value}, ...}
+	local t = {}
+	
+	@:foreach(fn(grid, x, y, val)
+		insert(t, {x, y, val}) 
+	end)
+
+  return t
+end
+
+function Grid:get_all_cells_with_value(value)
+	local t = {}
+
+	@:foreach(fn(grid, x, y, val)
+		if val == value then 
+			insert(t, {x, y, val}) 
+		end
+	end)
+
+	return t
 end
 
 function Grid:rotate_anticlockwise()
@@ -97,6 +124,13 @@ function Grid:rotate_clockwise()
 end
 
 function Grid:is_oob(x, y)
+	if type(x) == 'table' then
+		if x.x then 
+			x, y = x.x, x.y
+		else
+			x, y = x[1], x[2]
+		end
+	end
 	return x > @.width || x < 1 || y > @.height || y < 1
 end
 

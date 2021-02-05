@@ -40,9 +40,29 @@ function Camera:draw(func)
 end
 
 function Camera:follow(x, y)
-	local _x, _y = x, y
-	@.cam.target_x = _x or @.cam.target_x
-	@.cam.target_y = _y or @.cam.target_y
+	if type(x) == 'table' then
+		if x.x then 
+			x, y = x.x, x.y
+		else
+			x, y = x[1], x[2]
+		end
+	end
+
+	@.cam.target_x = x or @.cam.target_x
+	@.cam.target_y = y or @.cam.target_y
+end
+
+function Camera:move(x, y)
+	if type(x) == 'table' then
+		if x.x then 
+			x, y = x.x, x.y
+		else
+			x, y = x[1], x[2]
+		end
+	end
+
+	@.cam.target_x = @.cam.target_x + x or 0
+	@.cam.target_y = @.cam.target_y + y or 0
 end
 
 function Camera:zoom(s) 
